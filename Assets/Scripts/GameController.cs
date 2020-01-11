@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     public BoardButton[] buttonList;
-    public Pair selectedCell; // null if no selected cell exists
+    public Pair selectedCell = null; // null if no selected cell exists
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
 
@@ -32,7 +32,9 @@ public class GameController : MonoBehaviour
 
     public void DrawBoard(Pair clickedCell)
     {
+        Debug.Log("on DrawBoard");
         List<Pair> neighbors = FindNeighbors(clickedCell, 2);
+        Debug.Log(neighbors.Count);
         foreach (Pair coord in neighbors)
         {
             int pos = GetPosition(coord.X, coord.Y);
@@ -46,7 +48,6 @@ public class GameController : MonoBehaviour
         {
             SetStatus(buttonList[i].coord, false);
         }
-        // JOptionPane.showMessageDialog(null, "Game over!", "GAME OVER", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private List<Pair> FindNeighbors(Pair coord, int gap)
@@ -58,7 +59,7 @@ public class GameController : MonoBehaviour
         {
             for (int y = Y - gap; y <= Y + gap; y++)
             {
-                if (WithinBoundary(x, y))
+                if (x != X && y != Y && WithinBoundary(x, y))
                 {
                     retList.Add(new Pair(x, y));
                 }
@@ -97,16 +98,7 @@ public class GameController : MonoBehaviour
 
     private void Attack(Pair clickedCell)
     {
-        int distance = GetDistance(selectedCell, clickedCell);
-        if (distance > 2)
-        {
-            ClearAvailableCells();
-            return;
-        }
-        if (distance == 2)
-        {
-            RemoveCurrentCell();
-        }
+        RemoveCurrentCell();
         MoveCell(clickedCell);
         // ConsumeCell(clickedCell);
         EndTurn();
@@ -115,7 +107,7 @@ public class GameController : MonoBehaviour
     private void MoveCell(Pair clickedCell)
     {
         ClearAvailableCells();
-        int pos = GetPosition(clickedCell.X, clickedCell.Y);
+        int pos = GetPosition(clickedCell);
         buttonList[pos].buttonText.text = "X";
         // board.put(clickedCell, currentPlayerIndex);
         // players.get(currentPlayerIndex).add(clickedCell.getX(), clickedCell.getY());
@@ -128,14 +120,25 @@ public class GameController : MonoBehaviour
 
     public void ClickEvent(Pair clickedCell)
     {
+        Debug.Log("on ClickEvent");
         if (selectedCell.Equals(null))
         {
-            selectedCell = clickedCell;
+            Debug.Log("selectedCell is null");
             DrawBoard(clickedCell);
         }
         else
         {
+            Debug.Log("selectedCell is NOT null");
             int pos = GetPosition(clickedCell);
+
+            if (buttonList[pos].buttonText.text.Equals("O"))
+            {
+                Attack(clickedCell);
+            }
+            else
+            {
+                return;
+            }
             // TODO
         }
 
@@ -149,7 +152,7 @@ public class GameController : MonoBehaviour
         // }
 
         selectedCell = clickedCell;
-        turnCount++;
+        // turnCount++;
         // Player currPlayer = this.players.get(this.currentPlayerIndex);
         // switch (status) {
         // 	case notSelected:
@@ -200,7 +203,7 @@ public class GameController : MonoBehaviour
             GameOver();
             return;
         }
-        ClearAvailableCells();
+        // ClearAvailableCells();
         turnCount++;
     }
 

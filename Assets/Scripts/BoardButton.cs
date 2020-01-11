@@ -8,13 +8,15 @@ public class Pair
 {
     public int X, Y;
 
-    public Pair(int X, int Y) {
+    public Pair(int X, int Y)
+    {
         this.X = X;
         this.Y = Y;
     }
 }
 
-public class BoardButton : MonoBehaviour {
+public class BoardButton : MonoBehaviour
+{
     public Button button;
     public Text buttonText;
     public Pair coord;
@@ -27,11 +29,13 @@ public class BoardButton : MonoBehaviour {
         gameController = controller;
     }
 
-    public void SetSpace() {
+    public void SetSpace()
+    {
         gameController.ClickEvent(coord);
     }
 
-    public bool Equals(Pair p) {
-        return (coord.X == p.X) && (coord.Y == p.Y); 
+    public bool Equals(Pair p)
+    {
+        return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
