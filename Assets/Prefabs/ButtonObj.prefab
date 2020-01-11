@@ -102,13 +102,13 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: -885732595128615593, guid: 0d949703e36564b108dc37d7a738dc6c,
+    m_HighlightedSprite: {fileID: -5337275425736798630, guid: 0d949703e36564b108dc37d7a738dc6c,
       type: 3}
-    m_PressedSprite: {fileID: -885732595128615593, guid: 0d949703e36564b108dc37d7a738dc6c,
+    m_PressedSprite: {fileID: -5337275425736798630, guid: 0d949703e36564b108dc37d7a738dc6c,
       type: 3}
-    m_SelectedSprite: {fileID: -885732595128615593, guid: 0d949703e36564b108dc37d7a738dc6c,
+    m_SelectedSprite: {fileID: -5337275425736798630, guid: 0d949703e36564b108dc37d7a738dc6c,
       type: 3}
-    m_DisabledSprite: {fileID: -885732595128615593, guid: 0d949703e36564b108dc37d7a738dc6c,
+    m_DisabledSprite: {fileID: -5337275425736798630, guid: 0d949703e36564b108dc37d7a738dc6c,
       type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -116,7 +116,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 3994063752154533607}
   m_OnClick:
     m_PersistentCalls:
@@ -237,7 +237,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 5750845775559310642}
   m_OnClick:
     m_PersistentCalls:
@@ -541,7 +541,7 @@ MonoBehaviour:
   borderImg: {fileID: 8827683764874143800}
   obstacleImg: {fileID: 6629897877497177458}
   currState: 0
-  isCat: 0
+  stateMutator: 0
 --- !u!1 &6207343196435555762
 GameObject:
   m_ObjectHideFlags: 0

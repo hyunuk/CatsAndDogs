@@ -30,13 +30,18 @@ public class ButtonObj : MonoBehaviour {
         stateList[3] = State.border;
         stateList[4] = State.obstacle;
         stateMutator = 0;
+        catButton.interactable = false;
+        dogButton.interactable = false;
+        emptyImg.enabled = true;
+        borderImg.enabled = false;
+        obstacleImg.enabled = false;
     }
 
     void SetState(int stateMutator) {
         currState = (State) stateList[stateMutator];
     }
 
-    void update() {
+    void Update() {
         switch(currState) {
             case State.empty:
                 catButton.enabled = false;
@@ -83,6 +88,6 @@ public class ButtonObj : MonoBehaviour {
     public void SetSpace() {
         stateMutator = (stateMutator + 1) % 5;
         SetState(stateMutator);
-        Debug.Log(stateMutator);
+        Debug.Log(currState);
     }
 }
