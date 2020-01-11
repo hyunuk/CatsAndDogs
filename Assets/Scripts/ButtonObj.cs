@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class ButtonObj : MonoBehaviour {
     public Button parentButton;
-    public Button catButton;
-    public Button dogButton;
+    public Image catImg;
+    public Image dogImg;
     public Image emptyImg;
     public Image borderImg;
     public Image obstacleImg;
@@ -30,8 +30,8 @@ public class ButtonObj : MonoBehaviour {
         stateList[3] = State.border;
         stateList[4] = State.obstacle;
         stateMutator = 0;
-        catButton.interactable = false;
-        dogButton.interactable = false;
+        catImg.enabled = false;
+        dogImg.enabled = false;
         emptyImg.enabled = true;
         borderImg.enabled = false;
         obstacleImg.enabled = false;
@@ -44,40 +44,40 @@ public class ButtonObj : MonoBehaviour {
     void Update() {
         switch(currState) {
             case State.empty:
-                catButton.enabled = false;
-                dogButton.enabled = false;
+                catImg.enabled = false;
+                dogImg.enabled = false;
                 emptyImg.enabled = true;
                 borderImg.enabled = false;
                 obstacleImg.enabled = false;
                 break;
 
             case State.border:
-                catButton.enabled = false;
-                dogButton.enabled = false;
+                catImg.enabled = false;
+                dogImg.enabled = false;
                 emptyImg.enabled = false;
                 borderImg.enabled = true;
                 obstacleImg.enabled = false;
                 break;
 
             case State.obstacle:
-                catButton.enabled = false;
-                dogButton.enabled = false;
+                catImg.enabled = false;
+                dogImg.enabled = false;
                 emptyImg.enabled = false;
                 borderImg.enabled = false;
                 obstacleImg.enabled = true;
                 break;
 
             case State.cat:
-                catButton.enabled = true;
-                dogButton.enabled = false;
+                catImg.enabled = true;
+                dogImg.enabled = false;
                 emptyImg.enabled = false;
                 borderImg.enabled = false;
                 obstacleImg.enabled = false;
                 break;
 
             case State.dog:
-                catButton.enabled = false;
-                dogButton.enabled = true;
+                catImg.enabled = false;
+                dogImg.enabled = true;
                 emptyImg.enabled = false;
                 borderImg.enabled = false;
                 obstacleImg.enabled = false;
