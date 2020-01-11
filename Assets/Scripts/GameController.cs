@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public BoardButton[] buttonList;
+    public ButtonObj[] buttonList;
     public Pair selectedCell; // null if no selected cell exists
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < buttonList.Length; i++)
         {
             buttonList[i].SetGameControllerReference(this);
-            buttonList[i].button.interactable = true;
+            buttonList[i].parentButton.interactable = true;
         }
     }
 
@@ -36,7 +36,27 @@ public class GameController : MonoBehaviour
         foreach (Pair coord in neighbors)
         {
             int pos = GetPosition(coord.X, coord.Y);
-            buttonList[pos].buttonText.text = "O";
+            switch (state) {
+                case State.empty:
+                    SetButtonImage(State.empty);
+                    break;
+
+                case State.cat:
+                    SetButtonImage(State.cat);
+                    break;
+
+                case State.dog:
+                    SetButtonImage(State.dog);
+                    break;
+
+                case State.border:
+                    SetButtonImage(State.border);
+                    break;
+
+                case State.obstacle:
+                    SetButtonImage(State.obstacle);
+                    break;
+            }
         }
     }
 
