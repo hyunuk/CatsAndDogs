@@ -4,6 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Serializable]
+public class Pair {
+    public int X, Y;
+
+    public Pair(int X, int Y) {
+        this.X = X;
+        this.Y = Y;
+    }
+}
+
 public class ButtonObj : MonoBehaviour {
     public Button parentButton;
     public Image emptyImg;
@@ -11,8 +21,10 @@ public class ButtonObj : MonoBehaviour {
     public Image dogImg;
     public Image borderImg;
     public Image obstacleImg;
-
     public Image[] imgList;
+    public Pair coord;
+    private GameController gameController;
+
     public enum State { empty, cat, dog, border, obstacle };
     public State currState;
 
@@ -21,9 +33,8 @@ public class ButtonObj : MonoBehaviour {
         SetButtonImage(State.empty);
     }
 
-    void Update() {
-        currState = (State) UnityEngine.Random.Range(0, 4);
-        switch(currState) {
+    void update(State state) {
+        switch(state) {
             case State.empty:
                 SetButtonImage(State.empty);
                 break;
@@ -47,8 +58,13 @@ public class ButtonObj : MonoBehaviour {
     }
 
     public void SetSpace() {
-        
+        gameController.ClickEvent(coord);
         Debug.Log(currState);
+    }
+
+    public void SetState(State state) {
+        currState = state;
+        
     }
 
     public void SetButtonImage(State state) {
@@ -59,5 +75,13 @@ public class ButtonObj : MonoBehaviour {
                 imgList[i].enabled = false;
             }
         }
+    }
+
+    public void SetGameControllerReference(GameController controller) {
+        gameController = controller;
+    }
+
+    public bool Equals(Pair p) {
+        return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
