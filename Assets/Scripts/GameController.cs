@@ -5,5 +5,5 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public Text[] buttonList;
+    public Button[] buttonList;
 }
