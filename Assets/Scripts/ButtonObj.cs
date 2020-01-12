@@ -5,16 +5,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [Serializable]
-public class Pair {
+public class Pair
+{
     public int X, Y;
 
-    public Pair(int X, int Y) {
+    public Pair(int X, int Y)
+    {
         this.X = X;
         this.Y = Y;
     }
 }
 
-public class ButtonObj : MonoBehaviour {
+[Serializable]
+public enum State { empty, cat, dog, border, obstacle };
+
+public class ButtonObj : MonoBehaviour
+{
     public Button parentButton;
     public Image emptyImg;
     public Image catImg;
@@ -24,17 +30,18 @@ public class ButtonObj : MonoBehaviour {
     public Image[] imgList;
     public Pair coord;
     private GameController gameController;
-
-    public enum State { empty, cat, dog, border, obstacle };
     public State currState;
 
-    void Start() {
+    void Start()
+    {
         currState = State.empty;
         SetButtonImage(State.empty);
     }
 
-    void update(State state) {
-        switch(state) {
+    void update(State state)
+    {
+        switch (state)
+        {
             case State.empty:
                 SetButtonImage(State.empty);
                 break;
@@ -57,31 +64,40 @@ public class ButtonObj : MonoBehaviour {
         }
     }
 
-    public void SetSpace() {
+    public void SetSpace()
+    {
         gameController.ClickEvent(coord);
         Debug.Log(currState);
     }
 
-    public void SetState(State state) {
+    public void SetState(State state)
+    {
         currState = state;
-        
+
     }
 
-    public void SetButtonImage(State state) {
-        for (int i = 0; i < imgList.Length; i++) {
-            if (i == (int)state) {
+    public void SetButtonImage(State state)
+    {
+        for (int i = 0; i < imgList.Length; i++)
+        {
+            if (i == (int)state)
+            {
                 imgList[i].enabled = true;
-            } else {
+            }
+            else
+            {
                 imgList[i].enabled = false;
             }
         }
     }
 
-    public void SetGameControllerReference(GameController controller) {
+    public void SetGameControllerReference(GameController controller)
+    {
         gameController = controller;
     }
 
-    public bool Equals(Pair p) {
+    public bool Equals(Pair p)
+    {
         return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
