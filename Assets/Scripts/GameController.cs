@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
     public enum Status { notSelected, clicked };
+    private Status status;
 
     void Awake()
     {
@@ -28,6 +29,7 @@ public class GameController : MonoBehaviour
         buttonList[43].SetState(State.dog);
         buttonList[47].SetState(State.cat);
         buttonList[48].SetState(State.cat);
+        status = Status.notSelected;
     }
 
     public void SetGameControllerReferenceOnButtons()
@@ -39,15 +41,10 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void DrawBoard(Pair clickedCell)
+    public void DrawBoard()
     {
-        Debug.Log("on DrawBoard");
-        List<Pair> neighbors = FindNeighbors(clickedCell, 2);
-        Debug.Log(neighbors.Count);
-        foreach (Pair coord in neighbors)
+        foreach (ButtonObj curr in buttonList)
         {
-            int pos = GetPosition(coord.X, coord.Y);
-            ButtonObj curr = buttonList[pos];
             switch (curr.currState)
             {
                 case State.empty:
@@ -105,6 +102,10 @@ public class GameController : MonoBehaviour
         buttonList[pos].parentButton.interactable = status;
     }
 
+    private bool WithinBoundary(Pair coord) {
+        return WithinBoundary(coord.X, coord.Y);
+    }
+
     private bool WithinBoundary(int x, int y)
     {
         return 0 <= x && x < LINE_COUNT && 0 <= y && y < LINE_COUNT;
@@ -153,26 +154,27 @@ public class GameController : MonoBehaviour
     public void ClickEvent(Pair clickedCell)
     {
         Debug.Log("on ClickEvent");
-        if (selectedCell.Equals(null))
+        switch (status)
         {
-            Debug.Log("selectedCell is null");
-            DrawBoard(clickedCell);
-        }
-        else
-        {
-            Debug.Log("selectedCell is NOT null");
-            int pos = GetPosition(clickedCell);
+            case Status.notSelected:
+                // DrawBoard();
 
-            if (buttonList[pos].currState.Equals(State.border))
-            {
-                Attack(clickedCell);
-            }
-            else
-            {
-                return;
-            }
-            // TODO
+                break;
+            case Status.clicked:
+                int pos = GetPosition(clickedCell);
+
+                if (buttonList[pos].currState.Equals(State.border))
+                {
+                    Attack(clickedCell);
+                }
+                else
+                {
+
+                }
+                break;
         }
+
+        DrawBoard();
 
         // if (gameController.turnCount < gameController.LINE_COUNT * gameController.LINE_COUNT) {
         //     buttonText.text = playerSide;
@@ -223,6 +225,29 @@ public class GameController : MonoBehaviour
         foreach (ButtonObj button in buttonList)
         {
             if (button.currState.Equals(State.border)) button.currState = State.empty;
+        }
+    }
+
+    private List<Pair> FindAvailableCells(Pair clickedCell)
+    {
+        List<Pair> retList = FindNeighbors(clickedCell, 2);
+        foreach (Pair coord in retList)
+        {
+            State currState = buttonList[GetPosition(coord)].currState;
+            if (currState.Equals(State.cat) || currState.Equals(State.dog))
+            {
+                retList.Remove(coord);
+            }
+        }
+        return retList;
+    }
+
+    private void UpdateAvailableCells(Pair selectedCell)
+    {
+        List<Pair> retList = FindAvailableCells(selectedCell);
+        foreach (Pair coord in retList)
+        {
+            if (WithinBoundary(coord)) buttonList[GetPosition(coord)].currState = State.border;
         }
     }
 
