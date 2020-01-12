@@ -8,19 +8,30 @@ public class GameController : MonoBehaviour
 {
     public ButtonObj[] buttonList;
     public Pair selectedCell; // null if no selected cell exists
+    public ButtonObj selectedButton;
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
     public enum Status { notSelected, clicked };
     private Status status;
 
-    void Awake()
-    {
+    void Awake() {
         StartGame();
     }
 
-    void StartGame()
-    {
+    void StartGame() {
         SetGameControllerReferenceOnButtons();
+        InitPlayers();
+        DrawBoard();
+    }
+
+    public void SetGameControllerReferenceOnButtons() {
+        foreach (ButtonObj button in buttonList) {
+            button.SetGameControllerReference(this);
+            button.parentButton.interactable = true;
+        }
+    }
+
+    private void InitPlayers() {
         buttonList[0].SetState(State.cat);
         buttonList[1].SetState(State.cat);
         buttonList[5].SetState(State.dog);
@@ -32,72 +43,33 @@ public class GameController : MonoBehaviour
         status = Status.notSelected;
     }
 
-    public void SetGameControllerReferenceOnButtons()
-    {
-        for (int i = 0; i < buttonList.Length; i++)
-        {
-            buttonList[i].SetGameControllerReference(this);
-            buttonList[i].parentButton.interactable = true;
+    public void DrawBoard() {
+        foreach (ButtonObj currButton in buttonList) {
+            currButton.UpdateImg();
         }
     }
 
-    public void DrawBoard()
-    {
-        foreach (ButtonObj curr in buttonList)
-        {
-            switch (curr.currState)
-            {
-                case State.empty:
-                    curr.SetButtonImage(State.empty);
-                    break;
-
-                case State.cat:
-                    curr.SetButtonImage(State.cat);
-                    break;
-
-                case State.dog:
-                    curr.SetButtonImage(State.dog);
-                    break;
-
-                case State.border:
-                    curr.SetButtonImage(State.border);
-                    break;
-
-                case State.obstacle:
-                    curr.SetButtonImage(State.obstacle);
-                    break;
-            }
+    public void GameOver() {
+        foreach (ButtonObj button in buttonList) {
+            SetStatus(button.coord, false);
         }
     }
 
-    public void GameOver()
-    {
-        for (int i = 0; i < buttonList.Length; i++)
-        {
-            SetStatus(buttonList[i].coord, false);
-        }
-    }
-
-    private List<Pair> FindNeighbors(Pair coord, int gap)
-    {
-        // BoardButton[] retList = new BoardButton[];
-        List<Pair> retList = new List<Pair>();
-        int X = coord.X, Y = coord.Y;
-        for (int x = X - gap; x <= X + gap; x++)
-        {
-            for (int y = Y - gap; y <= Y + gap; y++)
-            {
-                if (x != X && y != Y && WithinBoundary(x, y))
-                {
-                    retList.Add(new Pair(x, y));
+    private List<ButtonObj> FindNeighbors(ButtonObj btn, int gap) {
+        List<ButtonObj> retList = new List<ButtonObj>();
+        Pair coord = btn.coord;
+        for (int x = coord.X - gap; x <= coord.X + gap; x++) {
+            for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
+                if (x != coord.X && y != coord.Y && WithinBoundary(x, y)) {
+                    ButtonObj temp = buttonList[GetPosition(new Pair(x, y))];
+                    retList.Add(temp);
                 }
             }
         }
         return retList;
     }
 
-    private void SetStatus(Pair coord, bool status)
-    {
+    private void SetStatus(Pair coord, bool status) {
         int pos = GetPosition(coord.X, coord.Y);
         buttonList[pos].parentButton.interactable = status;
     }
@@ -106,38 +78,32 @@ public class GameController : MonoBehaviour
         return WithinBoundary(coord.X, coord.Y);
     }
 
-    private bool WithinBoundary(int x, int y)
-    {
+    private bool WithinBoundary(int x, int y) {
         return 0 <= x && x < LINE_COUNT && 0 <= y && y < LINE_COUNT;
     }
 
-    private int GetPosition(Pair coord)
-    {
+    private int GetPosition(Pair coord) {
         return GetPosition(coord.X, coord.Y);
     }
 
-    private int GetPosition(int x, int y)
-    {
-        return x + y * LINE_COUNT;
+    private int GetPosition(int x, int y) {
+        return (y * LINE_COUNT) + x;
     }
 
-    private int GetDistance(Pair from, Pair to)
-    {
+    private int GetDistance(Pair from, Pair to) {
         int xDist = from.X - to.X;
         int yDist = from.Y - to.Y;
         return (int)Math.Sqrt(xDist * xDist + yDist * yDist);
     }
 
-    private void Attack(Pair clickedCell)
-    {
+    private void Attack(ButtonObj clickedCell) {
         RemoveCurrentCell();
         MoveCell(clickedCell);
         // ConsumeCell(clickedCell);
         EndTurn();
     }
 
-    private void MoveCell(Pair clickedCell)
-    {
+    private void MoveCell(ButtonObj clickedCell) {
         ClearAvailableCells();
         int pos = GetPosition(clickedCell);
         // TODO: implement
@@ -146,35 +112,35 @@ public class GameController : MonoBehaviour
         // players.get(currentPlayerIndex).add(clickedCell.getX(), clickedCell.getY());
     }
 
-    private void RemoveCurrentCell()
-    {
+    private void RemoveCurrentCell() {
         selectedCell = null;
     }
 
-    public void ClickEvent(Pair clickedCell)
-    {
+    public void ClickEvent(ButtonObj clickedButton) {
         Debug.Log("on ClickEvent");
-        switch (status)
-        {
+        switch (status) {
             case Status.notSelected:
-                // DrawBoard();
-
+                if (clickedButton.GetState() == State.cat || clickedButton.GetState() == State.dog) {
+                    this.selectedButton = clickedButton;
+                    this.status = Status.clicked;
+                    UpdateAvailableCells(selectedButton);
+                }
                 break;
+
             case Status.clicked:
-                int pos = GetPosition(clickedCell);
-
-                if (buttonList[pos].currState.Equals(State.border))
-                {
-                    Attack(clickedCell);
+                if (clickedButton.GetState().Equals(State.border)) {
+                    selectedButton = clickedButton;
+                    ClearAvailableCells();
+                    UpdateAvailableCells(selectedButton);
                 }
-                else
-                {
-
-                }
+                this.status = Status.notSelected;
+                Attack(clickedButton);
                 break;
         }
 
         DrawBoard();
+
+
 
         // if (gameController.turnCount < gameController.LINE_COUNT * gameController.LINE_COUNT) {
         //     buttonText.text = playerSide;
@@ -185,7 +151,6 @@ public class GameController : MonoBehaviour
         //     gameController.GameOver();
         // }
 
-        selectedCell = clickedCell;
         // turnCount++;
         // Player currPlayer = this.players.get(this.currentPlayerIndex);
         // switch (status) {
@@ -220,43 +185,32 @@ public class GameController : MonoBehaviour
         // }
     }
 
-    private void ClearAvailableCells()
-    {
-        foreach (ButtonObj button in buttonList)
-        {
+    private void ClearAvailableCells() {
+        foreach (ButtonObj button in buttonList) {
             if (button.currState.Equals(State.border)) button.currState = State.empty;
         }
     }
 
-    private List<Pair> FindAvailableCells(Pair clickedCell)
-    {
-        List<Pair> retList = FindNeighbors(clickedCell, 2);
-        foreach (Pair coord in retList)
-        {
-            State currState = buttonList[GetPosition(coord)].currState;
-            if (currState.Equals(State.cat) || currState.Equals(State.dog))
-            {
-                retList.Remove(coord);
+    private List<ButtonObj> FindAvailableCells(ButtonObj clickedCell) {
+        List<ButtonObj> retList = FindNeighbors(clickedCell, 2);
+        foreach (ButtonObj b in retList) {
+            if (b.GetState().Equals(State.cat) || b.GetState().Equals(State.dog)) {
+                retList.Remove(b);
             }
         }
         return retList;
     }
 
-    private void UpdateAvailableCells(Pair selectedCell)
-    {
-        List<Pair> retList = FindAvailableCells(selectedCell);
-        foreach (Pair coord in retList)
-        {
-            if (WithinBoundary(coord)) buttonList[GetPosition(coord)].currState = State.border;
+    private void UpdateAvailableCells(ButtonObj selected) {
+        List<ButtonObj> retList = FindAvailableCells(selected);
+        foreach (ButtonObj b in retList) {
+            if (WithinBoundary(b.coord)) b.currState = State.border;
         }
     }
 
-    private void EndTurn()
-    {
+    private void EndTurn() {
         // currentPlayerIndex = (currentPlayerIndex == 0) ? 1 : 0;
-
-        if (!CanContinue())
-        {
+        if (!CanContinue()) {
             GameOver();
             return;
         }
@@ -264,8 +218,7 @@ public class GameController : MonoBehaviour
         turnCount++;
     }
 
-    private bool CanContinue()
-    {
+    private bool CanContinue() {
         return turnCount < LINE_COUNT * LINE_COUNT;
     }
 }

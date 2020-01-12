@@ -19,8 +19,7 @@ public class Pair
 [Serializable]
 public enum State { empty, cat, dog, border, obstacle };
 
-public class ButtonObj : MonoBehaviour
-{
+public class ButtonObj : MonoBehaviour {
     public Button parentButton;
     public Image emptyImg;
     public Image catImg;
@@ -32,16 +31,8 @@ public class ButtonObj : MonoBehaviour
     private GameController gameController;
     public State currState = State.empty;
 
-    // void Start()
-    // {
-    //     currState = State.empty;
-    //     SetButtonImage(State.empty);
-    // }
-
-    void Update()
-    {
-        switch (currState)
-        {
+    public void UpdateImg() {
+        switch (currState) {
             case State.empty:
                 SetButtonImage(State.empty);
                 break;
@@ -64,40 +55,32 @@ public class ButtonObj : MonoBehaviour
         }
     }
 
-    public void SetSpace()
-    {
-        gameController.ClickEvent(coord);
+    public void SetSpace() {
+        gameController.ClickEvent(this);
         Debug.Log(currState);
     }
 
-    public void SetState(State state)
-    {
-        currState = state;
-
+    public State GetState() {
+        return currState;
     }
 
-    public void SetButtonImage(State state)
-    {
-        for (int i = 0; i < imgList.Length; i++)
-        {
-            if (i == (int)state)
-            {
-                imgList[i].enabled = true;
-            }
-            else
-            {
-                imgList[i].enabled = false;
-            }
+    public void SetState(State state) {
+        currState = state;
+        UpdateImg();
+    }
+
+    public void SetButtonImage(State state) {
+        for (int i = 0; i < imgList.Length; i++) {
+            if (i == (int)state) imgList[i].enabled = true;
+            else imgList[i].enabled = false;
         }
     }
 
-    public void SetGameControllerReference(GameController controller)
-    {
+    public void SetGameControllerReference(GameController controller) {
         gameController = controller;
     }
 
-    public bool Equals(Pair p)
-    {
+    public bool Equals(Pair p) {
         return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
