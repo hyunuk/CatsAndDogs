@@ -38,25 +38,27 @@ public class GameController : MonoBehaviour
         foreach (Pair coord in neighbors)
         {
             int pos = GetPosition(coord.X, coord.Y);
-            switch (state) {
+            ButtonObj curr = buttonList[pos];
+            switch (curr.currState)
+            {
                 case State.empty:
-                    SetButtonImage(State.empty);
+                    curr.SetButtonImage(State.empty);
                     break;
 
                 case State.cat:
-                    SetButtonImage(State.cat);
+                    curr.SetButtonImage(State.cat);
                     break;
 
                 case State.dog:
-                    SetButtonImage(State.dog);
+                    curr.SetButtonImage(State.dog);
                     break;
 
                 case State.border:
-                    SetButtonImage(State.border);
+                    curr.SetButtonImage(State.border);
                     break;
 
                 case State.obstacle:
-                    SetButtonImage(State.obstacle);
+                    curr.SetButtonImage(State.obstacle);
                     break;
             }
         }
@@ -91,7 +93,7 @@ public class GameController : MonoBehaviour
     private void SetStatus(Pair coord, bool status)
     {
         int pos = GetPosition(coord.X, coord.Y);
-        buttonList[pos].button.interactable = status;
+        buttonList[pos].parentButton.interactable = status;
     }
 
     private bool WithinBoundary(int x, int y)
@@ -128,7 +130,8 @@ public class GameController : MonoBehaviour
     {
         ClearAvailableCells();
         int pos = GetPosition(clickedCell);
-        buttonList[pos].buttonText.text = "X";
+        // TODO: implement
+        buttonList[pos].SetButtonImage(State.cat);
         // board.put(clickedCell, currentPlayerIndex);
         // players.get(currentPlayerIndex).add(clickedCell.getX(), clickedCell.getY());
     }
@@ -151,7 +154,7 @@ public class GameController : MonoBehaviour
             Debug.Log("selectedCell is NOT null");
             int pos = GetPosition(clickedCell);
 
-            if (buttonList[pos].buttonText.text.Equals("O"))
+            if (buttonList[pos].currState.Equals(State.border))
             {
                 Attack(clickedCell);
             }
@@ -208,9 +211,9 @@ public class GameController : MonoBehaviour
 
     private void ClearAvailableCells()
     {
-        foreach (BoardButton button in buttonList)
+        foreach (ButtonObj button in buttonList)
         {
-            if (button.buttonText.text == "O") button.buttonText.text = null;
+            if (button.currState.Equals(State.border)) button.currState = State.empty;
         }
     }
 

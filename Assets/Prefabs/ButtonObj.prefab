@@ -363,21 +363,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 5541610153335488511}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6a4e7296663d3c47aeb67c18cdd9bf4, type: 3}
+  m_Script: {fileID: 11500000, guid: 61107e6f338c244249b2839197d83276, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parentButton: {fileID: 8609872713882018360}
-  emptyImg: {fileID: 3966174304703153608}
-  catImg: {fileID: 1434604660491880160}
-  dogImg: {fileID: 4723569866312546293}
-  borderImg: {fileID: 8827683764874143800}
-  obstacleImg: {fileID: 6629897877497177458}
-  imgList:
-  - {fileID: 3966174304703153608}
-  - {fileID: 1434604660491880160}
-  - {fileID: 4723569866312546293}
-  - {fileID: 8827683764874143800}
-  - {fileID: 6629897877497177458}
+  parentButton: {fileID: 0}
+  emptyImg: {fileID: 0}
+  catImg: {fileID: 0}
+  dogImg: {fileID: 0}
+  borderImg: {fileID: 0}
+  obstacleImg: {fileID: 0}
+  imgList: []
+  coord:
+    X: 0
+    Y: 0
   currState: 0
 --- !u!1 &5551055095037679792
 GameObject:
