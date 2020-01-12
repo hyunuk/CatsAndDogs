@@ -28,7 +28,7 @@ public class ButtonObj : MonoBehaviour {
     public Image obstacleImg;
     public Image[] imgList;
     public Pair coord;
-    private GameController gameController;
+    public GameController gameController;
     public State currState = State.empty;
 
     public void UpdateImg() {
@@ -64,6 +64,10 @@ public class ButtonObj : MonoBehaviour {
         return currState;
     }
 
+    public Pair GetCoord() {
+        return this.coord;
+    }
+
     public void SetState(State state) {
         currState = state;
         UpdateImg();
@@ -77,7 +81,7 @@ public class ButtonObj : MonoBehaviour {
     }
 
     public void SetGameControllerReference(GameController controller) {
-        gameController = controller;
+        this.gameController = controller;
     }
 
     public bool Equals(Pair p) {

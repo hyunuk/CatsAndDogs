@@ -43,7 +43,7 @@ public class GameController : MonoBehaviour
         status = Status.notSelected;
     }
 
-    public void DrawBoard() {
+    private void DrawBoard() {
         foreach (ButtonObj currButton in buttonList) {
             currButton.UpdateImg();
         }
@@ -84,6 +84,10 @@ public class GameController : MonoBehaviour
 
     private int GetPosition(Pair coord) {
         return GetPosition(coord.X, coord.Y);
+    }
+
+    private int GetPosition(ButtonObj btn) {
+        return GetPosition(btn.GetCoord());
     }
 
     private int GetPosition(int x, int y) {
