@@ -30,17 +30,17 @@ public class ButtonObj : MonoBehaviour
     public Image[] imgList;
     public Pair coord;
     private GameController gameController;
-    public State currState;
+    public State currState = State.empty;
 
-    void Start()
-    {
-        currState = State.empty;
-        SetButtonImage(State.empty);
-    }
+    // void Start()
+    // {
+    //     currState = State.empty;
+    //     SetButtonImage(State.empty);
+    // }
 
-    void update(State state)
+    void Update()
     {
-        switch (state)
+        switch (currState)
         {
             case State.empty:
                 SetButtonImage(State.empty);

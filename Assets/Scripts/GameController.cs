@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     public Pair selectedCell; // null if no selected cell exists
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
+    public enum Status { notSelected, clicked };
 
     void Awake()
     {
@@ -19,6 +20,14 @@ public class GameController : MonoBehaviour
     void StartGame()
     {
         SetGameControllerReferenceOnButtons();
+        buttonList[0].SetState(State.cat);
+        buttonList[1].SetState(State.cat);
+        buttonList[5].SetState(State.dog);
+        buttonList[6].SetState(State.dog);
+        buttonList[42].SetState(State.dog);
+        buttonList[43].SetState(State.dog);
+        buttonList[47].SetState(State.cat);
+        buttonList[48].SetState(State.cat);
     }
 
     public void SetGameControllerReferenceOnButtons()
