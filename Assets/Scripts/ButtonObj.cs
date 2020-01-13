@@ -17,14 +17,15 @@ public class Pair
 }
 
 [Serializable]
-public enum State { empty, cat, dog, border, obstacle };
+public enum State { empty, cat, dog, nearBorder, farBorder, obstacle };
 
 public class ButtonObj : MonoBehaviour {
     public Button parentButton;
     public Image emptyImg;
     public Image catImg;
     public Image dogImg;
-    public Image borderImg;
+    public Image nearBorderImg;
+    public Image farBorderImg;
     public Image obstacleImg;
     public Image[] imgList;
     public Pair coord;
@@ -45,8 +46,12 @@ public class ButtonObj : MonoBehaviour {
                 SetButtonImage(State.dog);
                 break;
 
-            case State.border:
-                SetButtonImage(State.border);
+            case State.nearBorder:
+                SetButtonImage(State.nearBorder);
+                break;
+
+            case State.farBorder:
+                SetButtonImage(State.farBorder);
                 break;
 
             case State.obstacle:

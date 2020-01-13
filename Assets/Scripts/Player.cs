@@ -5,12 +5,14 @@ using UnityEngine;
 public class Player : MonoBehaviour {
     private List<ButtonObj> buttons;
     private int playerIndex;
+	public bool isAI;
 
-    public Player(int index) {
-        buttons = new List<ButtonObj>();
-        playerIndex = index;
+    public Player(int index, bool isAI) {
+        this.buttons = new List<ButtonObj>();
+        this.playerIndex = index;
+		this.isAI = isAI;
     }
-
+	
     public int GetPlayerIndex() {
         return playerIndex;
     }
@@ -34,4 +36,12 @@ public class Player : MonoBehaviour {
 	public void RemoveButton(ButtonObj button) {
 		this.buttons.Remove(button);
 	}
+
+	public ButtonObj AIEasyRun(List<ButtonObj> buttons) {
+		return null;
+    }
+	
+	public ButtonObj AINormalRun(List<ButtonObj> buttons) {
+		return null;
+    }
 }
