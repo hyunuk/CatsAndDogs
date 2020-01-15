@@ -85,20 +85,20 @@ public class GameController : MonoBehaviour
         Player currPlayer = players[currPlayerIndex];
         switch (status) {
             case Status.notSelected:
-                if (isCurrPlayerButton(clickedButton, currPlayer)) {
+                if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
                     this.status = Status.clicked;
-                    UpdateAvailableCells(selectedButton);
+                    UpdateBorders(selectedButton);
                 }
                 break;
 
             case Status.clicked:
-                if (isCurrPlayerButton(clickedButton, currPlayer)) {
+                if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
                     ClearAvailableCells();
-                    UpdateAvailableCells(selectedButton);
+                    UpdateBorders(selectedButton);
                 } else {
-                    if (clickedButton.currState.Equals(State.nearBorder)) {
+                    if (clickedButton.currState.Equals(State.nearBorder) || clickedButton.currState.Equals(State.farBorder)) {
                         this.status = Status.notSelected;
                         Attack(clickedButton);
                     }
@@ -110,14 +110,16 @@ public class GameController : MonoBehaviour
         DrawBoard();
     }
 
-    private bool isCurrPlayerButton(ButtonObj clickedButton, Player currPlayer) {
+    private bool IsCurrPlayerButton(ButtonObj clickedButton, Player currPlayer) {
         return currPlayer.GetButtonObjs().Contains(clickedButton);
     }
 
-    private void UpdateAvailableCells(ButtonObj selected) {
+    private void UpdateBorders(ButtonObj selected) {
         List<ButtonObj> retList = FindAvailableCells(selected);
         foreach (ButtonObj b in retList) {
-            if (WithinBoundary(b.coord)) b.currState = State.nearBorder;
+            if (GetDistance(b, selected) == 1) b.currState = State.nearBorder;
+            if (GetDistance(b, selected) == 2) b.currState = State.farBorder;
+            // if (WithinBoundary(b.coord)) b.currState = State.nearBorder;
         }
     }
 
@@ -245,7 +247,7 @@ public class GameController : MonoBehaviour
 
     private void ClearAvailableCells() {
         foreach (ButtonObj button in buttonList) {
-            if (button.currState.Equals(State.nearBorder)) button.currState = State.empty;
+            if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) button.currState = State.empty;
         }
     }
 
