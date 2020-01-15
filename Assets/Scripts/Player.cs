@@ -1,47 +1,50 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-    private List<ButtonObj> buttons;
-    private int playerIndex;
+	private List<ButtonObj> Buttons = new List<ButtonObj>();
+	private int playerIndex;
 	public bool isAI;
 
-    public Player(int index, bool isAI) {
-        this.buttons = new List<ButtonObj>();
-        this.playerIndex = index;
-		this.isAI = isAI;
-    }
-	
-    public int GetPlayerIndex() {
-        return playerIndex;
-    }
+	public int GetPlayerIndex() {
+		return playerIndex;
+	}
 
-    public List<ButtonObj> GetButtonObjs() {
-        return buttons;
-    }
+	public List<ButtonObj> GetButtonObjs() {
+		return Buttons;
+	}
 
 	public int GetSize() {
-		return buttons.Count;
+		return Buttons.Count;
 	}
 
 	public void AddButton(ButtonObj button) {
-		if (this.buttons.Contains(button)) {
+		if (this.Buttons.Contains(button)) {
 			Debug.Log("Occupied in " + button);
 			return;
 		}
-		this.buttons.Add(button);
+		this.Buttons.Add(button);
 	}
 
 	public void RemoveButton(ButtonObj button) {
-		this.buttons.Remove(button);
+		this.Buttons.Remove(button);
 	}
 
 	public ButtonObj AIEasyRun(List<ButtonObj> buttons) {
 		return null;
-    }
-	
+	}
+
 	public ButtonObj AINormalRun(List<ButtonObj> buttons) {
 		return null;
-    }
+	}
+
+	internal void SetPlayerIndex(int index) {
+		playerIndex = index;
+	}
+
+	internal void SetIsAI(bool isAI) {
+		this.isAI = isAI;
+	}
 }

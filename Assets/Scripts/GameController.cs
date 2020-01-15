@@ -39,11 +39,19 @@ public class GameController : MonoBehaviour
 
     private void InitPlayers() {
         if (gameMode.Equals("PVE")) {
-            catPlayer = new Player(0, false);
-            dogPlayer = new Player(1, true);
+            catPlayer = gameObject.AddComponent<Player>();
+            catPlayer.SetPlayerIndex(0);
+            catPlayer.SetIsAI(false);
+            dogPlayer = gameObject.AddComponent<Player>();
+            dogPlayer.SetPlayerIndex(1);
+            dogPlayer.SetIsAI(true);
         } else {
-            catPlayer = new Player(0, false);
-            dogPlayer = new Player(1, false);
+            catPlayer = gameObject.AddComponent<Player>();
+            catPlayer.SetPlayerIndex(0);
+            catPlayer.SetIsAI(false);
+            dogPlayer = gameObject.AddComponent<Player>();
+            dogPlayer.SetPlayerIndex(1);
+            dogPlayer.SetIsAI(false);
         }
         players[0] = catPlayer;
         players[1] = dogPlayer;
