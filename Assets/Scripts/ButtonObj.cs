@@ -4,26 +4,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Serializable]
+public class Pair
+{
+    public int X, Y;
+
+    public Pair(int X, int Y)
+    {
+        this.X = X;
+        this.Y = Y;
+    }
+}
+
+[Serializable]
+public enum State { empty, cat, dog, nearBorder, farBorder, obstacle };
+
 public class ButtonObj : MonoBehaviour {
     public Button parentButton;
     public Image emptyImg;
     public Image catImg;
     public Image dogImg;
-    public Image borderImg;
+    public Image nearBorderImg;
+    public Image farBorderImg;
     public Image obstacleImg;
-
     public Image[] imgList;
-    public enum State { empty, cat, dog, border, obstacle };
-    public State currState;
+    public Pair coord;
+    public GameController gameController;
+    public State currState = State.empty;
 
-    void Start() {
-        currState = State.empty;
-        SetButtonImage(State.empty);
-    }
-
-    void Update() {
-        currState = (State) UnityEngine.Random.Range(0, 4);
-        switch(currState) {
+    public void UpdateImg() {
+        switch (currState) {
             case State.empty:
                 SetButtonImage(State.empty);
                 break;
@@ -36,8 +46,12 @@ public class ButtonObj : MonoBehaviour {
                 SetButtonImage(State.dog);
                 break;
 
-            case State.border:
-                SetButtonImage(State.border);
+            case State.nearBorder:
+                SetButtonImage(State.nearBorder);
+                break;
+
+            case State.farBorder:
+                SetButtonImage(State.farBorder);
                 break;
 
             case State.obstacle:
@@ -47,17 +61,35 @@ public class ButtonObj : MonoBehaviour {
     }
 
     public void SetSpace() {
-        
+        gameController.ClickEvent(this);
         Debug.Log(currState);
+    }
+
+    public State GetState() {
+        return currState;
+    }
+
+    public Pair GetCoord() {
+        return this.coord;
+    }
+
+    public void SetState(State state) {
+        currState = state;
+        UpdateImg();
     }
 
     public void SetButtonImage(State state) {
         for (int i = 0; i < imgList.Length; i++) {
-            if (i == (int)state) {
-                imgList[i].enabled = true;
-            } else {
-                imgList[i].enabled = false;
-            }
+            if (i == (int)state) imgList[i].enabled = true;
+            else imgList[i].enabled = false;
         }
+    }
+
+    public void SetGameControllerReference(GameController controller) {
+        this.gameController = controller;
+    }
+
+    public bool Equals(Pair p) {
+        return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
