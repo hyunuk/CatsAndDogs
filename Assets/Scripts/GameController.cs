@@ -95,14 +95,14 @@ public class GameController : MonoBehaviour
             case Status.clicked:
                 if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
-                    ClearAvailableCells();
+                    ClearAvailableButtons();
                     UpdateBorders(selectedButton);
                 } else {
                     if (clickedButton.currState.Equals(State.nearBorder) || clickedButton.currState.Equals(State.farBorder)) {
                         this.status = Status.notSelected;
                         Attack(clickedButton);
                     }
-                    else ClearAvailableCells();
+                    else ClearAvailableButtons();
                 }
                 break;
 
@@ -115,17 +115,16 @@ public class GameController : MonoBehaviour
     }
 
     private void UpdateBorders(ButtonObj selected) {
-        List<ButtonObj> retList = FindAvailableCells(selected);
+        List<ButtonObj> retList = FindAvailableButtons(selected);
         foreach (ButtonObj b in retList) {
             if (GetDistance(b, selected) == 1) b.currState = State.nearBorder;
             if (GetDistance(b, selected) == 2) b.currState = State.farBorder;
-            // if (WithinBoundary(b.coord)) b.currState = State.nearBorder;
         }
     }
 
-    private List<ButtonObj> FindAvailableCells(ButtonObj clickedCell) {
+    private List<ButtonObj> FindAvailableButtons(ButtonObj clickedButton) {
         List<ButtonObj> retList = new List<ButtonObj>();
-        Pair coord = clickedCell.coord;
+        Pair coord = clickedButton.coord;
         for (int x = coord.X - NEARBY; x <= coord.X + NEARBY; x++) {
             for (int y = coord.Y - NEARBY; y <= coord.Y + NEARBY; y++) {
                 if ((x != coord.X || y != coord.Y) && WithinBoundary(x, y)) {
@@ -201,21 +200,18 @@ public class GameController : MonoBehaviour
     private void Attack(ButtonObj clickedButton) {
         int dist = GetDistance(selectedButton, clickedButton);
         if (dist > 2) {
-            ClearAvailableCells();
+            ClearAvailableButtons();
             return;
         } else if (dist == 2) {
-            RemoveCurrentCell();
-        } else {
-            MoveCell(clickedButton);
-            ConsumeCell(clickedButton);
+            RemoveCurrentButton();
         }
+        MoveButton(clickedButton);
+        ConsumeButton(clickedButton);
         EndTurn();
     }
 
-    private void ConsumeCell(ButtonObj clickedButton) {
-        Player currPlayer = players[currPlayerIndex];
-        Player otherPlayer = (currPlayerIndex == 0) ? players[1] : players[0];
-        ClearAvailableCells();
+    private void ConsumeButton(ButtonObj clickedButton) {
+        ClearAvailableButtons();
 
         List<ButtonObj> neighbors = FindNeighbors(clickedButton, 1);
 
@@ -232,37 +228,39 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void MoveCell(ButtonObj clickedCell) {
-        ClearAvailableCells();
-        int pos = GetPosition(clickedCell);
-        // TODO: implement
-        buttonList[pos].SetButtonImage(State.cat);
-        // board.put(clickedCell, currentPlayerIndex);
-        // players.get(currentPlayerIndex).add(clickedCell.getX(), clickedCell.getY());
+    private void MoveButton(ButtonObj clickedButton) {
+        ClearAvailableButtons();
+        int pos = GetPosition(clickedButton);
+        State updatedState = currPlayerIndex == 0 ? State.cat : State.dog;
+        buttonList[pos].SetState(updatedState);
+        players[currPlayerIndex].AddButton(clickedButton);
     }
 
-    private void RemoveCurrentCell() {
-        //
+    private void RemoveCurrentButton() {
+        selectedButton.SetState(State.empty);
+        players[currPlayerIndex].RemoveButton(selectedButton);
     }
 
-    private void ClearAvailableCells() {
+    private void ClearAvailableButtons() {
         foreach (ButtonObj button in buttonList) {
-            if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) button.currState = State.empty;
+            if ((button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) && (!button.currState.Equals(State.cat) && !button.currState.Equals(State.dog))) button.currState = State.empty;
         }
     }
 
 
     private void EndTurn() {
-        // currentPlayerIndex = (currentPlayerIndex == 0) ? 1 : 0;
+        currPlayerIndex = (currPlayerIndex == 0) ? 1 : 0;
         if (!CanContinue()) {
             GameOver();
             return;
         }
-        // ClearAvailableCells();
+        ClearAvailableButtons();
         turnCount++;
     }
 
     private bool CanContinue() {
-        return turnCount < LINE_COUNT * LINE_COUNT;
+        int catCount = catPlayer.GetButtonObjs().Count;
+        int dogCount = dogPlayer.GetButtonObjs().Count;
+        return catCount != 0 && dogCount != 0 && catCount + dogCount < LINE_COUNT * LINE_COUNT;
     }
 }
