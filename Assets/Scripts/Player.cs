@@ -6,6 +6,7 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 	private List<ButtonObj> Buttons = new List<ButtonObj>();
 	private int playerIndex;
+	public string level = "easy";
 	public bool isAI;
 
 	public int GetPlayerIndex() {

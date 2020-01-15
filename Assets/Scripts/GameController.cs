@@ -16,7 +16,7 @@ public class GameController : MonoBehaviour
     private Player dogPlayer;
     private Player[] players = new Player[2];
     private int currPlayerIndex;
-    public string gameMode = "PVP"; // temp. will add choosing game mode.
+    public string gameMode = "PVE"; // temp. will add choosing game mode.
     private int NEARBY = 2;
 
     void Awake() {
@@ -28,6 +28,7 @@ public class GameController : MonoBehaviour
         InitPlayers();
         InitButtons();
         DrawBoard();
+        StartTurn();
     }
 
     public void SetGameControllerReferenceOnButtons() {
@@ -38,21 +39,21 @@ public class GameController : MonoBehaviour
     }
 
     private void InitPlayers() {
-        if (gameMode.Equals("PVE")) {
+        // if (gameMode.Equals("PVE")) {
             catPlayer = gameObject.AddComponent<Player>();
             catPlayer.SetPlayerIndex(0);
             catPlayer.SetIsAI(false);
             dogPlayer = gameObject.AddComponent<Player>();
             dogPlayer.SetPlayerIndex(1);
             dogPlayer.SetIsAI(true);
-        } else {
-            catPlayer = gameObject.AddComponent<Player>();
-            catPlayer.SetPlayerIndex(0);
-            catPlayer.SetIsAI(false);
-            dogPlayer = gameObject.AddComponent<Player>();
-            dogPlayer.SetPlayerIndex(1);
-            dogPlayer.SetIsAI(false);
-        }
+        // } else {
+        //     catPlayer = gameObject.AddComponent<Player>();
+        //     catPlayer.SetPlayerIndex(0);
+        //     catPlayer.SetIsAI(false);
+        //     dogPlayer = gameObject.AddComponent<Player>();
+        //     dogPlayer.SetPlayerIndex(1);
+        //     dogPlayer.SetIsAI(false);
+        // }
         players[0] = catPlayer;
         players[1] = dogPlayer;
         currPlayerIndex = 0;
@@ -79,6 +80,35 @@ public class GameController : MonoBehaviour
         players[0].AddButton(buttonList[47]);
         buttonList[48].SetState(State.cat);
         players[0].AddButton(buttonList[48]);
+    }
+
+    public void StartTurn() {
+        Debug.Log("StartTurn");
+        Player currPlayer = players[currPlayerIndex];
+        Debug.Log(currPlayerIndex);
+        Debug.Log(catPlayer.isAI);
+        Debug.Log(dogPlayer.isAI);
+        if (!currPlayer.isAI) return;
+        RunAuto(currPlayer.level);
+    }
+
+    public void RunAuto(string level) {
+        Debug.Log("RunAuto");
+        if (level.Equals("easy")) {
+            // TODO: run easy
+            Player currPlayer = players[currPlayerIndex];
+            List<ButtonObj> buttons = currPlayer.GetButtonObjs();
+            int pos = UnityEngine.Random.Range(0, buttons.Count);
+            ClickEvent(buttons[pos]);
+            List<ButtonObj> selectable = new List<ButtonObj>();
+            foreach (ButtonObj button in buttonList) {
+                if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
+            }
+            ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
+        } else {
+            // level == "normal"
+            // TODO: run normal
+        }
     }
 
     public void ClickEvent(ButtonObj clickedButton) {
@@ -256,6 +286,7 @@ public class GameController : MonoBehaviour
         }
         ClearAvailableButtons();
         turnCount++;
+        StartTurn();
     }
 
     private bool CanContinue() {
