@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
     private Player[] players = new Player[2];
     private int currPlayerIndex;
     public string gameMode = "PVP"; // temp. will add choosing game mode.
+    private int NEARBY = 2;
 
     void Awake() {
         StartGame();
@@ -88,15 +89,14 @@ public class GameController : MonoBehaviour
                     this.selectedButton = clickedButton;
                     ClearAvailableCells();
                     UpdateAvailableCells(selectedButton);
+                } else {
+                    if (clickedButton.currState.Equals(State.nearBorder)) {
+                        this.status = Status.notSelected;
+                        Attack(clickedButton);
+                    }
+                    else ClearAvailableCells();
                 }
-                this.status = Status.notSelected;
-                if (currPlayerIndex == 0 && players[1].GetButtonObjs().Contains(clickedButton)) break;
-                if (currPlayerIndex == 1 && players[0].GetButtonObjs().Contains(clickedButton)) break;
-
-                this.status = Status.notSelected;
-                Attack(clickedButton);
                 break;
-
 
         }
         DrawBoard();
@@ -114,10 +114,14 @@ public class GameController : MonoBehaviour
     }
 
     private List<ButtonObj> FindAvailableCells(ButtonObj clickedCell) {
-        List<ButtonObj> retList = FindNeighbors(clickedCell, 2);
-        foreach (ButtonObj b in retList) {
-            if (b.GetState().Equals(State.cat) || b.GetState().Equals(State.dog)) {
-                retList.Remove(b);
+        List<ButtonObj> retList = new List<ButtonObj>();
+        Pair coord = clickedCell.coord;
+        for (int x = coord.X - NEARBY; x <= coord.X + NEARBY; x++) {
+            for (int y = coord.Y - NEARBY; y <= coord.Y + NEARBY; y++) {
+                if ((x != coord.X || y != coord.Y) && WithinBoundary(x, y)) {
+                    ButtonObj temp = buttonList[GetPosition(new Pair(x, y))];
+                    if (temp.GetState().Equals(State.empty)) retList.Add(temp);
+                }
             }
         }
         return retList;
@@ -140,7 +144,7 @@ public class GameController : MonoBehaviour
         Pair coord = btn.coord;
         for (int x = coord.X - gap; x <= coord.X + gap; x++) {
             for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
-                if (x != coord.X && y != coord.Y && WithinBoundary(x, y)) {
+                if ((x != coord.X || y != coord.Y) && WithinBoundary(x, y)) {
                     ButtonObj temp = buttonList[GetPosition(new Pair(x, y))];
                     retList.Add(temp);
                 }
