@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour
     public string gameMode = "PVE"; // temp. will add choosing game mode.
     private int NEARBY = 2;
 
-    void Awake() {
+    void Start() {
         StartGame();
     }
 
@@ -39,21 +39,21 @@ public class GameController : MonoBehaviour
     }
 
     private void InitPlayers() {
-        // if (gameMode.Equals("PVE")) {
+        if (String.Equals(gameMode, "PVE")) {
             catPlayer = gameObject.AddComponent<Player>();
             catPlayer.SetPlayerIndex(0);
             catPlayer.SetIsAI(false);
             dogPlayer = gameObject.AddComponent<Player>();
             dogPlayer.SetPlayerIndex(1);
             dogPlayer.SetIsAI(true);
-        // } else {
-        //     catPlayer = gameObject.AddComponent<Player>();
-        //     catPlayer.SetPlayerIndex(0);
-        //     catPlayer.SetIsAI(false);
-        //     dogPlayer = gameObject.AddComponent<Player>();
-        //     dogPlayer.SetPlayerIndex(1);
-        //     dogPlayer.SetIsAI(false);
-        // }
+        } else {
+            catPlayer = gameObject.AddComponent<Player>();
+            catPlayer.SetPlayerIndex(0);
+            catPlayer.SetIsAI(false);
+            dogPlayer = gameObject.AddComponent<Player>();
+            dogPlayer.SetPlayerIndex(1);
+            dogPlayer.SetIsAI(false);
+        }
         players[0] = catPlayer;
         players[1] = dogPlayer;
         currPlayerIndex = 0;
@@ -83,11 +83,7 @@ public class GameController : MonoBehaviour
     }
 
     public void StartTurn() {
-        Debug.Log("StartTurn");
         Player currPlayer = players[currPlayerIndex];
-        Debug.Log(currPlayerIndex);
-        Debug.Log(catPlayer.isAI);
-        Debug.Log(dogPlayer.isAI);
         if (!currPlayer.isAI) return;
         StartCoroutine(RunAuto(currPlayer.level));
         //RunAuto(currPlayer.level);
@@ -96,15 +92,55 @@ public class GameController : MonoBehaviour
     public IEnumerator RunAuto(string level) {
         Player currPlayer = players[currPlayerIndex];
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
-        int pos = UnityEngine.Random.Range(0, buttons.Count);
-        yield return new WaitForSeconds(1f);
-        ClickEvent(buttons[pos]);
-        List<ButtonObj> selectable = new List<ButtonObj>();
-        foreach (ButtonObj button in buttonList) {
-            if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
+        if (String.Equals(level, "easy")) {
+            // TODO: run easy
+            // Player currPlayer = players[currPlayerIndex];
+            // List<ButtonObj> buttons = currPlayer.GetButtonObjs();
+            int pos = UnityEngine.Random.Range(0, buttons.Count);
+            yield return new WaitForSeconds(1f);
+            ClickEvent(buttons[pos]);
+            List<ButtonObj> selectable = new List<ButtonObj>();
+            foreach (ButtonObj button in buttonList) {
+                if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
+            }
+            yield return new WaitForSeconds(1f);
+            ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
+        } else if (String.Equals(level, "normal")) {
+            int max = -1;
+            ButtonObj currButton = null;
+            ButtonObj nextButton = null;
+            foreach (ButtonObj button in buttons) {
+                List<ButtonObj> availableButtons = FindAvailableButtons(button);
+                foreach (ButtonObj availableButton in availableButtons) {
+                    int net = FindNet(button);
+                    Debug.Log(net);
+                    if (net > max) {
+                        currButton = button;
+                        nextButton = availableButton;
+                        max = net;
+                    }
+                }
+            }
+            yield return new WaitForSeconds(1f);
+            ClickEvent(currButton);
+            yield return new WaitForSeconds(1f);
+            ClickEvent(nextButton);
+        } else {
+            // level == "hard"
+            // TODO: run hard mode
         }
-        yield return new WaitForSeconds(1f);
-        ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
+    }
+
+    private int FindNet(ButtonObj selectedButton) {
+        int net = 0;
+        if (selectedButton.currState.Equals(State.nearBorder)) {
+            net++;
+        }
+        List<ButtonObj> neighbors = FindNeighbors(selectedButton, 1);
+        foreach (ButtonObj neighbor in neighbors) {
+            if (neighbor.currState.Equals(State.cat)) net++;
+        }
+        return net;
     }
 
     public void ClickEvent(ButtonObj clickedButton) {
