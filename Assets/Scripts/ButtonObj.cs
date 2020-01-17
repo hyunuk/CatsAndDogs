@@ -30,7 +30,13 @@ public class ButtonObj : MonoBehaviour {
     public Image[] imgList;
     public Pair coord;
     public GameController gameController;
+    public AudioSource catClickedSound;
     public State currState = State.empty;
+
+    private void Awake() {
+        catClickedSound = GetComponent<AudioSource>();
+
+    }
 
     public void UpdateImg() {
         switch (currState) {
@@ -62,6 +68,9 @@ public class ButtonObj : MonoBehaviour {
 
     public void SetSpace() {
         gameController.ClickEvent(this);
+        if (this.currState.Equals(State.cat)) {
+            catClickedSound.Play();
+        }
         Debug.Log(currState);
     }
 

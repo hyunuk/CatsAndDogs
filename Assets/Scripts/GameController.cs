@@ -89,26 +89,22 @@ public class GameController : MonoBehaviour
         Debug.Log(catPlayer.isAI);
         Debug.Log(dogPlayer.isAI);
         if (!currPlayer.isAI) return;
-        RunAuto(currPlayer.level);
+        StartCoroutine(RunAuto(currPlayer.level));
+        //RunAuto(currPlayer.level);
     }
 
-    public void RunAuto(string level) {
-        Debug.Log("RunAuto");
-        if (level.Equals("easy")) {
-            // TODO: run easy
-            Player currPlayer = players[currPlayerIndex];
-            List<ButtonObj> buttons = currPlayer.GetButtonObjs();
-            int pos = UnityEngine.Random.Range(0, buttons.Count);
-            ClickEvent(buttons[pos]);
-            List<ButtonObj> selectable = new List<ButtonObj>();
-            foreach (ButtonObj button in buttonList) {
-                if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
-            }
-            ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
-        } else {
-            // level == "normal"
-            // TODO: run normal
+    public IEnumerator RunAuto(string level) {
+        Player currPlayer = players[currPlayerIndex];
+        List<ButtonObj> buttons = currPlayer.GetButtonObjs();
+        int pos = UnityEngine.Random.Range(0, buttons.Count);
+        yield return new WaitForSeconds(1f);
+        ClickEvent(buttons[pos]);
+        List<ButtonObj> selectable = new List<ButtonObj>();
+        foreach (ButtonObj button in buttonList) {
+            if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
         }
+        yield return new WaitForSeconds(1f);
+        ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
     }
 
     public void ClickEvent(ButtonObj clickedButton) {
