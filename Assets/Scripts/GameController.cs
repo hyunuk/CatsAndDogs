@@ -46,6 +46,13 @@ public class GameController : MonoBehaviour
             dogPlayer = gameObject.AddComponent<Player>();
             dogPlayer.SetPlayerIndex(1);
             dogPlayer.SetIsAI(true);
+        } else if (String.Equals(gameMode, "EVE")) {
+            catPlayer = gameObject.AddComponent<Player>();
+            catPlayer.SetPlayerIndex(0);
+            catPlayer.SetIsAI(true);
+            dogPlayer = gameObject.AddComponent<Player>();
+            dogPlayer.SetPlayerIndex(1);
+            dogPlayer.SetIsAI(true);
         } else {
             catPlayer = gameObject.AddComponent<Player>();
             catPlayer.SetPlayerIndex(0);
@@ -148,7 +155,8 @@ public class GameController : MonoBehaviour
         if (GetDistance(currButton, selectedButton) == 1) net++;
         List<ButtonObj> neighbors = FindNeighbors(selectedButton, 1);
         foreach (ButtonObj neighbor in neighbors) {
-            if (neighbor.currState.Equals(State.cat)) net++;
+            State enemyState = currPlayerIndex == 0 ? State.dog : State.cat;
+            if (neighbor.currState.Equals(enemyState)) net++;
         }
         return net;
     }
