@@ -85,57 +85,67 @@ public class GameController : MonoBehaviour
     public void StartTurn() {
         Player currPlayer = players[currPlayerIndex];
         if (!currPlayer.isAI) return;
-        StartCoroutine(RunAuto(currPlayer.level));
+        RunAuto(currPlayer.level);
         //RunAuto(currPlayer.level);
     }
 
-    public IEnumerator RunAuto(string level) {
+    public void RunAuto(string level) {
         Player currPlayer = players[currPlayerIndex];
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
-        if (String.Equals(level, "easy")) {
-            // TODO: run easy
-            // Player currPlayer = players[currPlayerIndex];
-            // List<ButtonObj> buttons = currPlayer.GetButtonObjs();
-            int pos = UnityEngine.Random.Range(0, buttons.Count);
-            yield return new WaitForSeconds(1f);
-            ClickEvent(buttons[pos]);
-            List<ButtonObj> selectable = new List<ButtonObj>();
-            foreach (ButtonObj button in buttonList) {
-                if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
-            }
-            yield return new WaitForSeconds(1f);
-            ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
-        } else if (String.Equals(level, "normal")) {
-            int max = -1;
-            ButtonObj currButton = null;
-            ButtonObj nextButton = null;
-            foreach (ButtonObj button in buttons) {
-                List<ButtonObj> availableButtons = FindAvailableButtons(button);
-                foreach (ButtonObj availableButton in availableButtons) {
-                    int net = FindNet(button);
-                    Debug.Log(net);
-                    if (net > max) {
-                        currButton = button;
-                        nextButton = availableButton;
-                        max = net;
-                    }
-                }
-            }
-            yield return new WaitForSeconds(1f);
-            ClickEvent(currButton);
-            yield return new WaitForSeconds(1f);
-            ClickEvent(nextButton);
-        } else {
-            // level == "hard"
-            // TODO: run hard mode
+        switch(level) {
+            case "easy":
+                StartCoroutine(RunEasyMode(currPlayer, buttons));
+                break;
+            case "normal":
+                StartCoroutine(RunNormalMode(currPlayer, buttons));
+                break;
+            default:
+                StartCoroutine(RunEasyMode(currPlayer, buttons));
+                break;
         }
     }
 
-    private int FindNet(ButtonObj selectedButton) {
-        int net = 0;
-        if (selectedButton.currState.Equals(State.nearBorder)) {
-            net++;
+    public IEnumerator RunEasyMode(Player currPlayer, List<ButtonObj> buttons) {
+        int pos = UnityEngine.Random.Range(0, buttons.Count);
+        yield return new WaitForSeconds(1f);
+        ClickEvent(buttons[pos]);
+        List<ButtonObj> selectable = new List<ButtonObj>();
+        foreach (ButtonObj button in buttonList) {
+            if (button.currState.Equals(State.nearBorder) || button.currState.Equals(State.farBorder)) selectable.Add(button);
         }
+        yield return new WaitForSeconds(1f);
+        ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
+    }
+
+    public IEnumerator RunNormalMode(Player currPlayer, List<ButtonObj> buttons) {
+        int max = -1;
+        ButtonObj currButton = null;
+        ButtonObj nextButton = null;
+        foreach (ButtonObj button in buttons) {
+            // yield return new WaitForSeconds(1f);
+            // UpdateBorders(button);
+            List<ButtonObj> neighbors = FindAvailableButtons(button);
+            foreach (ButtonObj neighbor in neighbors) {
+                int net = FindNet(button, neighbor);
+                Debug.Log(net);
+                if (net > max) {
+                    currButton = button;
+                    nextButton = neighbor;
+                    max = net;
+                }
+            }
+            // yield return new WaitForSeconds(1f);
+            // ClearAvailableButtons();
+        }
+        yield return new WaitForSeconds(1f);
+        ClickEvent(currButton);
+        yield return new WaitForSeconds(1f);
+        ClickEvent(nextButton);
+    }
+
+    private int FindNet(ButtonObj currButton, ButtonObj selectedButton) {
+        int net = 0;
+        if (GetDistance(currButton, selectedButton) == 1) net++;
         List<ButtonObj> neighbors = FindNeighbors(selectedButton, 1);
         foreach (ButtonObj neighbor in neighbors) {
             if (neighbor.currState.Equals(State.cat)) net++;
