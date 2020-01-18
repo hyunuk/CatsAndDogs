@@ -14,6 +14,12 @@ TextureImporter:
   - first:
       213: 7576031499984561419
     second: catsDogs_3
+  - first:
+      213: -1287291867245590661
+    second: catsDogs_4
+  - first:
+      213: -2278842151113752663
+    second: catsDogs_5
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -193,7 +199,7 @@ TextureImporter:
         width: 500
         height: 500
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -201,6 +207,48 @@ TextureImporter:
       bones: []
       spriteID: ad2ea852d046048f39461b02a45ff9d9
       internalID: 7576031499984561419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: catsDogs_4
+      rect:
+        serializedVersion: 2
+        x: 1167
+        y: 2213
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4ca009dd5aeb4fbf8487b7a7ad2477c
+      internalID: -1287291867245590661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: catsDogs_5
+      rect:
+        serializedVersion: 2
+        x: 2969
+        y: 248
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c69c9c4c6f794a3bbdce400bb3247ae
+      internalID: -2278842151113752663
       vertices: []
       indices: 
       edges: []

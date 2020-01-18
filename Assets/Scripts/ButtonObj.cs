@@ -31,10 +31,12 @@ public class ButtonObj : MonoBehaviour {
     public Pair coord;
     public GameController gameController;
     public AudioSource catClickedSound;
+    public AudioSource dogClickedSound;
     public State currState = State.empty;
 
     private void Awake() {
         catClickedSound = GetComponent<AudioSource>();
+        dogClickedSound = GetComponent<AudioSource>();
 
     }
 
@@ -68,9 +70,6 @@ public class ButtonObj : MonoBehaviour {
 
     public void SetSpace() {
         gameController.ClickEvent(this);
-        if (this.currState.Equals(State.cat)) {
-            catClickedSound.Play();
-        }
         Debug.Log(currState);
     }
 

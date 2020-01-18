@@ -6054,6 +6054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efd7db37467bb450c9feb08957ff16b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  level: normal
   isAI: 0
 --- !u!1 &1402730253
 GameObject:
@@ -8385,7 +8386,7 @@ MonoBehaviour:
   - {fileID: 1957929841}
   selectedButton: {fileID: 0}
   turnCount: 0
-  gameMode: 
+  gameMode: PVE
 --- !u!4 &1946757543
 Transform:
   m_ObjectHideFlags: 0
