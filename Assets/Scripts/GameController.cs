@@ -20,6 +20,7 @@ public class GameController : MonoBehaviour
     private int NEARBY = 2;
 
     private delegate bool Function(int x, int y, int X, int Y);
+    private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
 
     void Start() {
         StartGame();
@@ -98,21 +99,21 @@ public class GameController : MonoBehaviour
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
         switch(level) {
             case "easy":
-                StartCoroutine(RunEasyMode(currPlayer, buttons));
+                StartCoroutine(RunEasyMode(buttons));
                 break;
             case "normal":
-                StartCoroutine(RunNormalMode(currPlayer, buttons));
+                StartCoroutine(RunNormalMode(buttons));
                 break;
             case "hard":
-                StartCoroutine(RunHardMode(currPlayer, buttons));
+                StartCoroutine(RunHardMode(buttons));
                 break;
             default:
-                StartCoroutine(RunEasyMode(currPlayer, buttons));
+                StartCoroutine(RunEasyMode(buttons));
                 break;
         }
     }
 
-    private IEnumerator RunEasyMode(Player currPlayer, List<ButtonObj> buttons) {
+    private IEnumerator RunEasyMode(List<ButtonObj> buttons) {
         int pos = UnityEngine.Random.Range(0, buttons.Count);
         yield return new WaitForSeconds(1f);
         ClickEvent(buttons[pos]);
@@ -124,44 +125,63 @@ public class GameController : MonoBehaviour
         ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
     }
 
-    private IEnumerator RunNormalMode(Player currPlayer, List<ButtonObj> buttons) {
-        int max = -1;
-        ButtonObj currButton = null;
-        ButtonObj nextButton = null;
-        foreach (ButtonObj button in buttons) {
-            List<ButtonObj> neighbors = FindAvailableButtons(button);
-            foreach (ButtonObj neighbor in neighbors) {
-                int net = FindNet(button, neighbor);
-                if (net > max) {
-                    currButton = button;
-                    nextButton = neighbor;
-                    max = net;
-                }
-            }
-        }
+    private IEnumerator RunNormalMode(List<ButtonObj> buttons) {
+        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindGain);
         yield return new WaitForSeconds(1f);
         ClickEvent(currButton);
         yield return new WaitForSeconds(1f);
         ClickEvent(nextButton);
     }
 
-    private IEnumerator RunHardMode(Player currPlayer, List<ButtonObj> buttons) {
-        // TODO: implement hard mode
+    private IEnumerator RunHardMode(List<ButtonObj> buttons) {
+        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindNet);
         yield return new WaitForSeconds(1f);
+        ClickEvent(currButton);
+        yield return new WaitForSeconds(1f);
+        ClickEvent(nextButton);
     }
 
-    private int FindNet(ButtonObj currButton, ButtonObj selectedButton) {
-        int net = 0;
-        if (GetDistance(currButton, selectedButton) == 1) net++;
-        List<ButtonObj> neighbors = FindNeighbors(selectedButton, 1);
-        foreach (ButtonObj neighbor in neighbors) {
-            State enemyState = currPlayerIndex == 0 ? State.dog : State.cat;
-            if (neighbor.currState.Equals(enemyState)) net++;
+    private (ButtonObj, ButtonObj) GetNextMove(List<ButtonObj> buttons, Find f) {
+        int max = -1;
+        ButtonObj currButton = null;
+        ButtonObj nextButton = null;
+        foreach (ButtonObj button in buttons) {
+            List<ButtonObj> neighbors = FindAvailableButtons(button);
+            foreach (ButtonObj neighbor in neighbors) {
+                int net = f(button, neighbor, GetEnemy(currPlayerIndex));
+                if (net > max) {
+                    currButton = button;
+                    nextButton = neighbor;
+                    max = net;
+                } else if (net == max) {
+                    bool rand = UnityEngine.Random.Range(0, 1) > 0.5;
+                    currButton = rand ? currButton : button;
+                    nextButton = rand ? nextButton : neighbor;
+                    max = rand ? max : net;
+                }
+            }
         }
-        return net;
+        return (currButton, nextButton);
     }
 
-    void ClickEvent(ButtonObj clickedButton) {
+    private int FindNet(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
+        return FindGain(currButton, selectedButton, enemyState) - FindLoss(currButton, enemyState);
+    }
+
+    private int FindGain(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
+        int gain = 0;
+        if (GetDistance(currButton, selectedButton) == 1) gain++;
+        foreach (ButtonObj neighbor in FindNeighbors(selectedButton, 1)) if (neighbor.currState.Equals(enemyState)) gain++;
+        return gain;
+    }
+
+    private int FindLoss(ButtonObj currButton, State enemyState) {
+        int loss = 0;
+        foreach (ButtonObj neighbor in FindNeighbors(currButton, 2)) if (neighbor.currState.Equals(enemyState)) loss--;
+        return loss;
+    }
+
+    public void ClickEvent(ButtonObj clickedButton) {
         Player currPlayer = players[currPlayerIndex];
         switch (status) {
             case Status.notSelected:
@@ -334,6 +354,10 @@ public class GameController : MonoBehaviour
 
     private bool IsEnemy(State state) {
         return (currPlayerIndex == 0 && state.Equals(State.dog)) || (currPlayerIndex == 1 && state.Equals(State.cat));
+    }
+
+    private State GetEnemy(int playerIndex) {
+        return playerIndex == 0 ? State.dog : State.cat;
     }
 
     private State GetEnemy(ButtonObj button) {
