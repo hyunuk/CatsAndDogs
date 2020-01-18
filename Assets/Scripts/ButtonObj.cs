@@ -69,10 +69,6 @@ public class ButtonObj : MonoBehaviour {
 
     public void SetSpace() {
         gameController.ClickEvent(this);
-        if (this.currState.Equals(State.cat)) {
-            catClickedSound.Play();
-        }
-        Debug.Log(currState);
     }
 
     public State GetState() {

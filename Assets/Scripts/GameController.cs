@@ -19,6 +19,7 @@ public class GameController : MonoBehaviour
     private int currPlayerIndex;
     public string gameMode = "PVE"; // temp. will add choosing game mode.
     private int NEARBY = 2;
+    public GameObject endGamePanel;
 
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
@@ -28,6 +29,7 @@ public class GameController : MonoBehaviour
     }
 
     void InitGame() {
+        endGamePanel.SetActive(false);
         InitGameMode();
         SetGameControllerReferenceOnButtons();
         InitPlayers();
@@ -253,7 +255,21 @@ public class GameController : MonoBehaviour
         foreach (ButtonObj button in buttonList) {
             SetStatus(button.coord, false);
         }
+        endGamePanel.SetActive(true);
+
     }
+
+    public void ClickRestartButton() {
+
+	}
+
+    public void ClickBackToTitleButton() {
+
+	}
+
+    public void ClickQuitButton() {
+        Application.Quit();
+	}
 
     private List<ButtonObj> FindAvailableButtons(ButtonObj btn) {
         return VisitNeighbors(btn, NEARBY, IsAvailable);
