@@ -7,7 +7,7 @@ public class TitleController : MonoBehaviour
 {
     static TitleController instance = null;
     private string gameMode;
-    private static string[] levels = { "easy", "normal" };
+    private string level = "easy";
 
     private void Awake()
     {
@@ -34,14 +34,14 @@ public class TitleController : MonoBehaviour
         this.gameMode = gameMode;
     }
 
-    public string GetLevel(int playerIndex) {
-        Debug.Log("Returned level: " + levels[playerIndex]);
-        return levels[playerIndex];
+    public string GetLevel() {
+        Debug.Log("Returned level: " + level);
+        return level;
     }
 
-    public void SetLevel(int playerIndex, string level) {
+    public void SetLevel(string level) {
         Debug.Log("Level is set to " + level);
-        levels[playerIndex] = level;
+        this.level = level;
     }
 
     public void StartGame() {

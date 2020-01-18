@@ -58,8 +58,8 @@ public class GameController : MonoBehaviour
     private void InitPlayers() {
         catPlayer = gameObject.AddComponent<Player>();
         dogPlayer = gameObject.AddComponent<Player>();
-        catPlayer.SetLevel(controller.GetLevel(0));
-        dogPlayer.SetLevel(controller.GetLevel(1));
+        catPlayer.SetLevel(controller.GetLevel());
+        dogPlayer.SetLevel(controller.GetLevel());
         switch(gameMode) {
             case "PVE":
                 catPlayer.SetIsAI(false);
