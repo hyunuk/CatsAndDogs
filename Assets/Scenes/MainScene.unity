@@ -7207,6 +7207,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1444083091}
     m_Modifications:
+    - target: {fileID: 1914363756339031098, guid: f290fef82c78d464997f288a421cf699,
+        type: 3}
+      propertyPath: m_Name
+      value: Score
+      objectReference: {fileID: 0}
     - target: {fileID: 5408684003469291636, guid: f290fef82c78d464997f288a421cf699,
         type: 3}
       propertyPath: m_Name
@@ -7323,6 +7328,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8236767298056191291, guid: f290fef82c78d464997f288a421cf699,
+        type: 3}
+      propertyPath: m_Text
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f290fef82c78d464997f288a421cf699, type: 3}
 --- !u!224 &1612032746 stripped
@@ -7331,6 +7341,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1612032745}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1612032747 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8236767298056191291, guid: f290fef82c78d464997f288a421cf699,
+    type: 3}
+  m_PrefabInstance: {fileID: 1612032745}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1625985143
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8881,6 +8903,8 @@ MonoBehaviour:
   gameMode: EVE
   endGamePanel: {fileID: 1056875172}
   winnerText: {fileID: 1050780877}
+  catScore: {fileID: 1545615560054787540}
+  dogScore: {fileID: 1612032747}
 --- !u!4 &1946757543
 Transform:
   m_ObjectHideFlags: 0
@@ -9431,6 +9455,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1444083091}
     m_Modifications:
+    - target: {fileID: 1914363756339031098, guid: f290fef82c78d464997f288a421cf699,
+        type: 3}
+      propertyPath: m_Name
+      value: Score
+      objectReference: {fileID: 0}
     - target: {fileID: 4321945522154101353, guid: f290fef82c78d464997f288a421cf699,
         type: 3}
       propertyPath: m_Text
@@ -9546,6 +9575,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8236767298056191291, guid: f290fef82c78d464997f288a421cf699,
+        type: 3}
+      propertyPath: m_Text
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f290fef82c78d464997f288a421cf699, type: 3}
 --- !u!224 &1545615560054787539 stripped
@@ -9554,6 +9588,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1545615560054787538}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1545615560054787540 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8236767298056191291, guid: f290fef82c78d464997f288a421cf699,
+    type: 3}
+  m_PrefabInstance: {fileID: 1545615560054787538}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6580727899662974415
 PrefabInstance:
   m_ObjectHideFlags: 0

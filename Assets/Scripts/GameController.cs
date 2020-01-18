@@ -23,6 +23,8 @@ public class GameController : MonoBehaviour
     private int NEARBY = 2;
     public GameObject endGamePanel;
     public GameObject winnerText;
+    public Text catScore;
+    public Text dogScore;
 
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
@@ -103,6 +105,9 @@ public class GameController : MonoBehaviour
         players[0].AddButton(buttonList[47]);
         buttonList[48].SetState(State.cat);
         players[0].AddButton(buttonList[48]);
+
+        catScore.text = catPlayer.GetButtonObjs().Count.ToString();
+        dogScore.text = dogPlayer.GetButtonObjs().Count.ToString();
     }
 
     void StartTurn() {
@@ -425,6 +430,8 @@ public class GameController : MonoBehaviour
 
     private void EndTurn() {
         currPlayerIndex = (currPlayerIndex == 0) ? 1 : 0;
+        catScore.text = catPlayer.GetButtonObjs().Count.ToString();
+        dogScore.text = dogPlayer.GetButtonObjs().Count.ToString();
         if (!CanContinue()) {
             GameOver();
             return;
