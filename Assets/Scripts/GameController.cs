@@ -87,13 +87,13 @@ public class GameController : MonoBehaviour
         players[0].AddButton(buttonList[48]);
     }
 
-    public void StartTurn() {
+    void StartTurn() {
         Player currPlayer = players[currPlayerIndex];
         if (!currPlayer.isAI) return;
         RunAuto(currPlayer.level);
     }
 
-    public void RunAuto(string level) {
+    void RunAuto(string level) {
         Player currPlayer = players[currPlayerIndex];
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
         switch(level) {
@@ -112,7 +112,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public IEnumerator RunEasyMode(Player currPlayer, List<ButtonObj> buttons) {
+    private IEnumerator RunEasyMode(Player currPlayer, List<ButtonObj> buttons) {
         int pos = UnityEngine.Random.Range(0, buttons.Count);
         yield return new WaitForSeconds(1f);
         ClickEvent(buttons[pos]);
@@ -124,7 +124,7 @@ public class GameController : MonoBehaviour
         ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
     }
 
-    public IEnumerator RunNormalMode(Player currPlayer, List<ButtonObj> buttons) {
+    private IEnumerator RunNormalMode(Player currPlayer, List<ButtonObj> buttons) {
         int max = -1;
         ButtonObj currButton = null;
         ButtonObj nextButton = null;
@@ -145,7 +145,7 @@ public class GameController : MonoBehaviour
         ClickEvent(nextButton);
     }
 
-    public IEnumerator RunHardMode(Player currPlayer, List<ButtonObj> buttons) {
+    private IEnumerator RunHardMode(Player currPlayer, List<ButtonObj> buttons) {
         // TODO: implement hard mode
         yield return new WaitForSeconds(1f);
     }
@@ -161,7 +161,7 @@ public class GameController : MonoBehaviour
         return net;
     }
 
-    public void ClickEvent(ButtonObj clickedButton) {
+    void ClickEvent(ButtonObj clickedButton) {
         Player currPlayer = players[currPlayerIndex];
         switch (status) {
             case Status.notSelected:
@@ -208,7 +208,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void GameOver() {
+    void GameOver() {
         foreach (ButtonObj button in buttonList) {
             SetStatus(button.coord, false);
         }
