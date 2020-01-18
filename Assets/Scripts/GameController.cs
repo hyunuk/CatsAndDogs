@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -21,6 +22,7 @@ public class GameController : MonoBehaviour
     public string gameMode = "PVE"; // temp. will add choosing game mode.
     private int NEARBY = 2;
     public GameObject endGamePanel;
+    public GameObject winnerText;
 
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
@@ -79,6 +81,9 @@ public class GameController : MonoBehaviour
 
     private void InitButtons() {
         // TODO: get stage info and make buttons with using obstacles.
+        foreach (ButtonObj button in buttonList) {
+            button.SetState(State.empty);
+		}
         buttonList[0].SetState(State.cat);
         players[0].AddButton(buttonList[0]);
         buttonList[1].SetState(State.cat);
@@ -256,21 +261,33 @@ public class GameController : MonoBehaviour
         foreach (ButtonObj button in buttonList) {
             SetStatus(button.coord, false);
         }
+        GetWinner();
         endGamePanel.SetActive(true);
 
     }
 
-    public void ClickRestartButton() {
+    private void GetWinner() {
+        string winner;
+        if (players[0].GetSize() > players[1].GetSize()) {
+            winner = "Cat Player Won!";
+        } else if (players[0].GetSize() == players[1].GetSize()) {
+            winner = "Draw Game";
+        } else {
+            winner = "Dog Player Won!";
+        }
+        winnerText.GetComponent<Text>().text = winner;
+        
 
+    }
+
+    public void ClickRestartButton() {
+        InitGame();
 	}
 
     public void ClickBackToTitleButton() {
-
-	}
-
-    public void ClickQuitButton() {
-        Application.Quit();
-	}
+        SceneManager.LoadScene("TitleScene", LoadSceneMode.Single);
+        SceneManager.UnloadSceneAsync("MainScene");
+    }
 
     private List<ButtonObj> FindAvailableButtons(ButtonObj btn) {
         return VisitNeighbors(btn, NEARBY, IsAvailable);

@@ -46,6 +46,6 @@ public class TitleController : MonoBehaviour
 
     public void StartGame() {
         Debug.Log("Game start!");
-        SceneManager.LoadScene("MainScene", LoadSceneMode.Single);
+        SceneManager.LoadScene("MainScene", LoadSceneMode.Additive);
     }
 }
