@@ -7,7 +7,7 @@ public class TitleController : MonoBehaviour
 {
     static TitleController instance = null;
     private string gameMode;
-    private List<string> levels = new List<string>();
+    private static string[] levels = { "easy", "normal" };
 
     private void Awake()
     {
@@ -25,6 +25,7 @@ public class TitleController : MonoBehaviour
     }
 
     public string GetGameMode() {
+        Debug.Log("Returned game mode: " + gameMode);
         return gameMode;
     }
 
@@ -34,14 +35,17 @@ public class TitleController : MonoBehaviour
     }
 
     public string GetLevel(int playerIndex) {
+        Debug.Log("Returned level: " + levels[playerIndex]);
         return levels[playerIndex];
     }
 
     public void SetLevel(int playerIndex, string level) {
+        Debug.Log("Level is set to " + level);
         levels[playerIndex] = level;
     }
 
     public void StartGame() {
+        Debug.Log("Game start!");
         SceneManager.LoadScene("MainScene", LoadSceneMode.Single);
     }
 }
