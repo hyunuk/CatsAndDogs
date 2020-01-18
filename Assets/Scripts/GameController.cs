@@ -189,16 +189,28 @@ public class GameController : MonoBehaviour
                     this.selectedButton = clickedButton;
                     this.status = Status.clicked;
                     UpdateBorders(selectedButton);
+                    
+                    if (clickedButton.currState.Equals(State.cat)) {
+                        clickedButton.catClickedSound.Play();
+                    } else if (clickedButton.currState.Equals(State.dog)) {
+                        //clickedButton.dogClickedSound.Play();
+                    }
                 }
                 break;
 
             case Status.clicked:
                 if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
+                    
+                    if (clickedButton.currState.Equals(State.cat)) {
+                        clickedButton.catClickedSound.Play();
+                    } else if (clickedButton.currState.Equals(State.dog)) {
+                        //clickedButton.dogClickedSound.Play();
+                    }
                     ClearAvailableButtons();
                     UpdateBorders(selectedButton);
                 } else {
-                    if (IsBorder(clickedButton.currState)) {
+                    if (clickedButton.currState.Equals(State.nearBorder) || clickedButton.currState.Equals(State.farBorder)) {
                         this.status = Status.notSelected;
                         Attack(clickedButton);
                     }
