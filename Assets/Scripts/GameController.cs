@@ -20,7 +20,7 @@ public class GameController : MonoBehaviour
     private int NEARBY = 2;
 
     private delegate bool Function(int x, int y, int X, int Y);
-
+    
     void Start() {
         StartGame();
     }
@@ -149,7 +149,7 @@ public class GameController : MonoBehaviour
         // TODO: implement hard mode
         yield return new WaitForSeconds(1f);
     }
-
+    
     private int FindNet(ButtonObj currButton, ButtonObj selectedButton) {
         int net = 0;
         if (GetDistance(currButton, selectedButton) == 1) net++;
@@ -169,16 +169,28 @@ public class GameController : MonoBehaviour
                     this.selectedButton = clickedButton;
                     this.status = Status.clicked;
                     UpdateBorders(selectedButton);
+                    
+                    if (clickedButton.currState.Equals(State.cat)) {
+                        clickedButton.catClickedSound.Play();
+                    } else if (clickedButton.currState.Equals(State.dog)) {
+                        //clickedButton.dogClickedSound.Play();
+                    }
                 }
                 break;
 
             case Status.clicked:
                 if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
+                    
+                    if (clickedButton.currState.Equals(State.cat)) {
+                        clickedButton.catClickedSound.Play();
+                    } else if (clickedButton.currState.Equals(State.dog)) {
+                        //clickedButton.dogClickedSound.Play();
+                    }
                     ClearAvailableButtons();
                     UpdateBorders(selectedButton);
                 } else {
-                    if (IsBorder(clickedButton.currState)) {
+                    if (clickedButton.currState.Equals(State.nearBorder) || clickedButton.currState.Equals(State.farBorder)) {
                         this.status = Status.notSelected;
                         Attack(clickedButton);
                     }
