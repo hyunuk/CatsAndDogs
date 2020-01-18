@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour
     public readonly int LINE_COUNT = 7;
     public int turnCount = 0;
     public enum Status { notSelected, clicked };
+    private TitleController controller;
     private Status status = Status.notSelected;
     private Player catPlayer;
     private Player dogPlayer;
@@ -24,6 +25,7 @@ public class GameController : MonoBehaviour
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
 
     void Awake() {
+        controller = GameObject.FindWithTag("TitleController").GetComponent<TitleController>();
         InitGame();
     }
 
@@ -44,15 +46,14 @@ public class GameController : MonoBehaviour
     }
 
     private void InitGameMode() {
-        TitleController controller = gameObject.GetComponent<TitleController>();
         this.gameMode = controller.GetGameMode();
-        catPlayer.SetLevel(controller.GetLevel(0));
-        dogPlayer.SetLevel(controller.GetLevel(1));
     }
 
     private void InitPlayers() {
         catPlayer = gameObject.AddComponent<Player>();
         dogPlayer = gameObject.AddComponent<Player>();
+        catPlayer.SetLevel(controller.GetLevel(0));
+        dogPlayer.SetLevel(controller.GetLevel(1));
         switch(gameMode) {
             case "PVE":
                 catPlayer.SetIsAI(false);
