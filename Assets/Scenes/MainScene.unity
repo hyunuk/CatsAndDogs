@@ -8386,7 +8386,7 @@ MonoBehaviour:
   - {fileID: 1957929841}
   selectedButton: {fileID: 0}
   turnCount: 0
-  gameMode: PVE
+  gameMode: EVE
 --- !u!4 &1946757543
 Transform:
   m_ObjectHideFlags: 0

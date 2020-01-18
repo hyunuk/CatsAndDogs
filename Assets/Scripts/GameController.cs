@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
+    public static GameController instance = null;
+    private TitleController titleController;
     public ButtonObj[] buttonList;
     public ButtonObj selectedButton;
     public readonly int LINE_COUNT = 7;
@@ -22,11 +25,20 @@ public class GameController : MonoBehaviour
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
 
-    void Start() {
-        StartGame();
+    void Awake() {
+        if (instance == null) instance = this;
+        else if (instance != this) Destroy(this);
+        DontDestroyOnLoad(this);
+        titleController = GetComponent<TitleController>();
+        InitGame();
     }
 
-    void StartGame() {
+    // void Start() {
+    //     InitGame();
+    // }
+
+    void InitGame() {
+        InitGameMode();
         SetGameControllerReferenceOnButtons();
         InitPlayers();
         InitButtons();
@@ -39,6 +51,12 @@ public class GameController : MonoBehaviour
             button.SetGameControllerReference(this);
             button.parentButton.interactable = true;
         }
+    }
+
+    private void InitGameMode() {
+        this.gameMode = titleController.GetGameMode();
+        catPlayer.SetLevel(titleController.GetLevel(0));
+        dogPlayer.SetLevel(titleController.GetLevel(1));
     }
 
     private void InitPlayers() {
@@ -91,7 +109,7 @@ public class GameController : MonoBehaviour
     void StartTurn() {
         Player currPlayer = players[currPlayerIndex];
         if (!currPlayer.isAI) return;
-        RunAuto(currPlayer.level);
+        RunAuto(currPlayer.GetLevel());
     }
 
     void RunAuto(string level) {
@@ -114,7 +132,7 @@ public class GameController : MonoBehaviour
     }
 
     private IEnumerator RunEasyMode(List<ButtonObj> buttons) {
-        int pos = UnityEngine.Random.Range(0, buttons.Count);
+        int pos = Random.Range(0, buttons.Count);
         yield return new WaitForSeconds(1f);
         ClickEvent(buttons[pos]);
         List<ButtonObj> selectable = new List<ButtonObj>();
@@ -122,7 +140,7 @@ public class GameController : MonoBehaviour
             if (IsBorder(button.currState)) selectable.Add(button);
         }
         yield return new WaitForSeconds(1f);
-        ClickEvent(selectable[UnityEngine.Random.Range(0, selectable.Count)]);
+        ClickEvent(selectable[Random.Range(0, selectable.Count)]);
     }
 
     private IEnumerator RunNormalMode(List<ButtonObj> buttons) {
@@ -154,7 +172,7 @@ public class GameController : MonoBehaviour
                     nextButton = neighbor;
                     max = net;
                 } else if (net == max) {
-                    bool rand = UnityEngine.Random.Range(0, 1) > 0.5;
+                    bool rand = Random.Range(0, 1) > 0.5;
                     currButton = rand ? currButton : button;
                     nextButton = rand ? nextButton : neighbor;
                     max = rand ? max : net;
