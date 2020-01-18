@@ -7,8 +7,6 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
-    public static GameController instance = null;
-    private TitleController titleController;
     public ButtonObj[] buttonList;
     public ButtonObj selectedButton;
     public readonly int LINE_COUNT = 7;
@@ -26,16 +24,8 @@ public class GameController : MonoBehaviour
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
 
     void Awake() {
-        if (instance == null) instance = this;
-        else if (instance != this) Destroy(this);
-        DontDestroyOnLoad(this);
-        titleController = GetComponent<TitleController>();
         InitGame();
     }
-
-    // void Start() {
-    //     InitGame();
-    // }
 
     void InitGame() {
         InitGameMode();
@@ -54,9 +44,10 @@ public class GameController : MonoBehaviour
     }
 
     private void InitGameMode() {
-        this.gameMode = titleController.GetGameMode();
-        catPlayer.SetLevel(titleController.GetLevel(0));
-        dogPlayer.SetLevel(titleController.GetLevel(1));
+        TitleController controller = gameObject.GetComponent<TitleController>();
+        this.gameMode = controller.GetGameMode();
+        catPlayer.SetLevel(controller.GetLevel(0));
+        dogPlayer.SetLevel(controller.GetLevel(1));
     }
 
     private void InitPlayers() {

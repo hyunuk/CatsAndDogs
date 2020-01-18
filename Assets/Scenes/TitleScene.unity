@@ -1631,6 +1631,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: gameStartButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2092913444}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: StartGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 4172886642224628651, guid: 6c031f6e6d7e046469d2994abd018be7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c031f6e6d7e046469d2994abd018be7, type: 3}
 --- !u!224 &1635035911 stripped
