@@ -15,12 +15,14 @@ public class TitleController : MonoBehaviour
     public Button PVEGameModeButton;
     public Button EVEGameModeButton;
     public GameObject creditsPanel;
+    public GameObject howToPanel;
     private string gameMode;
     private string level = "easy";
 
     private void Awake()
     {
         creditsPanel.SetActive(false);
+        howToPanel.SetActive(false);
         if (instance != null)
         {
             Debug.Log("TitleController instance has been destroyed");
@@ -95,5 +97,9 @@ public class TitleController : MonoBehaviour
 
     public void ToggleCreditsPanel(bool active) {
         creditsPanel.SetActive(active);
+    }
+
+    public void ToggleHowToPanel(bool active) {
+        howToPanel.SetActive(active);
     }
 }
