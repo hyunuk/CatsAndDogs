@@ -148,29 +148,29 @@ public class GameController : MonoBehaviour
 
     private IEnumerator RunEasyMode(List<ButtonObj> buttons) {
         int pos = Random.Range(0, buttons.Count);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(buttons[pos]);
         List<ButtonObj> selectable = new List<ButtonObj>();
         foreach (ButtonObj button in buttonList) {
             if (IsBorder(button.currState)) selectable.Add(button);
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(selectable[Random.Range(0, selectable.Count)]);
     }
 
     private IEnumerator RunNormalMode(List<ButtonObj> buttons) {
         (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindGain);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(currButton);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(nextButton);
     }
 
     private IEnumerator RunHardMode(List<ButtonObj> buttons) {
         (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindNet);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(currButton);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ClickEvent(nextButton);
     }
 
