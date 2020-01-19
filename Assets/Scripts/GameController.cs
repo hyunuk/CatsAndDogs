@@ -27,6 +27,8 @@ public class GameController : MonoBehaviour
     public Text dogScore;
     public Text catName;
     public Text dogName;
+    public Text catTurnInfo;
+    public Text dogTurnInfo;
 
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
@@ -84,6 +86,8 @@ public class GameController : MonoBehaviour
 
         catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
         dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
+        catTurnInfo.enabled = true;
+        dogTurnInfo.enabled = false;
 
         currPlayerIndex = 0;
     }
@@ -446,11 +450,18 @@ public class GameController : MonoBehaviour
         ClearAvailableButtons();
         turnCount++;
         StartTurn();
+        if (currPlayerIndex == 0) {
+            catTurnInfo.enabled = true;
+            dogTurnInfo.enabled = false;
+        } else {
+            catTurnInfo.enabled = false;
+            dogTurnInfo.enabled = true;
+        }
     }
 
     private bool CanContinue() {
         int catCount = catPlayer.GetButtonObjs().Count;
         int dogCount = dogPlayer.GetButtonObjs().Count;
-        return catCount != 0 && dogCount != 0 && catCount + dogCount < LINE_COUNT * LINE_COUNT;
+        return (catCount != 0 && dogCount != 0) && (catCount + dogCount < LINE_COUNT * LINE_COUNT);
     }
 }
