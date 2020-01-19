@@ -7353,6 +7353,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1612032748 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4321945522154101353, guid: f290fef82c78d464997f288a421cf699,
+    type: 3}
+  m_PrefabInstance: {fileID: 1612032745}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1625985143
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8905,6 +8917,8 @@ MonoBehaviour:
   winnerText: {fileID: 1050780877}
   catScore: {fileID: 1545615560054787540}
   dogScore: {fileID: 1612032747}
+  catName: {fileID: 1545615560054787541}
+  dogName: {fileID: 1612032748}
 --- !u!4 &1946757543
 Transform:
   m_ObjectHideFlags: 0
@@ -9591,6 +9605,18 @@ RectTransform:
 --- !u!114 &1545615560054787540 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8236767298056191291, guid: f290fef82c78d464997f288a421cf699,
+    type: 3}
+  m_PrefabInstance: {fileID: 1545615560054787538}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1545615560054787541 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4321945522154101353, guid: f290fef82c78d464997f288a421cf699,
     type: 3}
   m_PrefabInstance: {fileID: 1545615560054787538}
   m_PrefabAsset: {fileID: 0}

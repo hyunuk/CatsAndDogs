@@ -25,6 +25,8 @@ public class GameController : MonoBehaviour
     public GameObject winnerText;
     public Text catScore;
     public Text dogScore;
+    public Text catName;
+    public Text dogName;
 
     private delegate bool Function(int x, int y, int X, int Y);
     private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
@@ -78,6 +80,11 @@ public class GameController : MonoBehaviour
         dogPlayer.SetPlayerIndex(1);
         players[0] = catPlayer;
         players[1] = dogPlayer;
+
+
+        catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
+        dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
+
         currPlayerIndex = 0;
     }
 
