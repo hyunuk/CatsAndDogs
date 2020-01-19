@@ -37,7 +37,6 @@ public class ButtonObj : MonoBehaviour {
     private void Awake() {
         catClickedSound = GetComponent<AudioSource>();
         dogClickedSound = GetComponent<AudioSource>();
-
     }
 
     public void UpdateImg() {
@@ -70,7 +69,6 @@ public class ButtonObj : MonoBehaviour {
 
     public void SetSpace() {
         gameController.ClickEvent(this);
-        Debug.Log(currState);
     }
 
     public State GetState() {

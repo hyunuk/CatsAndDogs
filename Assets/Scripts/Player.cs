@@ -21,6 +21,10 @@ public class Player : MonoBehaviour {
 		return Buttons.Count;
 	}
 
+	public string GetLevel() {
+		return level;
+	}
+
 	public void AddButton(ButtonObj button) {
 		if (this.Buttons.Contains(button)) {
 			Debug.Log("Occupied in " + button);
@@ -47,5 +51,9 @@ public class Player : MonoBehaviour {
 
 	internal void SetIsAI(bool isAI) {
 		this.isAI = isAI;
+	}
+
+	internal void SetLevel(string level) {
+		this.level = level;
 	}
 }
