@@ -8,19 +8,23 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
-    public ButtonObj[] buttonList;
-    public ButtonObj selectedButton;
+    private readonly int NEARBY = 2;
     public readonly int LINE_COUNT = 7;
-    public int turnCount = 0;
+
+    public ButtonObj[] buttonList;
+    public int[][] board;
+    public ButtonObj selectedButton;
     public enum Status { notSelected, clicked };
-    private TitleController controller;
+
+    public int turnCount = 0;
     private Status status = Status.notSelected;
     private Player catPlayer;
     private Player dogPlayer;
     private Player[] players = new Player[2];
     private int currPlayerIndex;
-    public string gameMode = "PVE"; // temp. will add choosing game mode.
-    private int NEARBY = 2;
+    public string gameMode;
+
+    private TitleController controller;
     public GameObject endGamePanel;
     public GameObject winnerText;
     public Text catScore;
@@ -40,10 +44,10 @@ public class GameController : MonoBehaviour
 
     void InitGame() {
         endGamePanel.SetActive(false);
-        InitGameMode();
         SetGameControllerReferenceOnButtons();
         InitPlayers();
         InitButtons();
+        InitInfo();
         DrawBoard();
         StartTurn();
     }
@@ -55,16 +59,9 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void InitGameMode() {
+    private void SetGameMode() {
         this.gameMode = controller.GetGameMode();
-    }
-
-    private void InitPlayers() {
-        catPlayer = gameObject.AddComponent<Player>();
-        dogPlayer = gameObject.AddComponent<Player>();
-        catPlayer.SetLevel(controller.GetLevel());
-        dogPlayer.SetLevel(controller.GetLevel());
-        switch(gameMode) {
+        switch (gameMode) {
             case "PVE":
                 catPlayer.SetIsAI(false);
                 dogPlayer.SetIsAI(true);
@@ -78,15 +75,18 @@ public class GameController : MonoBehaviour
                 dogPlayer.SetIsAI(false);
                 break;
         }
+    }
+
+    private void InitPlayers() {
+        catPlayer = gameObject.AddComponent<Player>();
+        dogPlayer = gameObject.AddComponent<Player>();
+        catPlayer.SetLevel(controller.GetLevel());
+        dogPlayer.SetLevel(controller.GetLevel());
+        SetGameMode();
         catPlayer.SetPlayerIndex(0);
         dogPlayer.SetPlayerIndex(1);
         players[0] = catPlayer;
         players[1] = dogPlayer;
-
-        catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
-        dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
-        catTurnInfo.enabled = true;
-        dogTurnInfo.enabled = false;
 
         currPlayerIndex = 0;
     }
@@ -115,6 +115,13 @@ public class GameController : MonoBehaviour
         players[0].AddButton(buttonList[47]);
         buttonList[48].SetState(State.cat);
         players[0].AddButton(buttonList[48]);
+    }
+
+    private void InitInfo() {
+        catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
+        dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
+        catTurnInfo.enabled = true;
+        dogTurnInfo.enabled = false;
 
         catScore.text = catPlayer.GetButtonObjs().Count.ToString();
         dogScore.text = dogPlayer.GetButtonObjs().Count.ToString();
