@@ -5,13 +5,10 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 	private List<ButtonObj> Buttons = new List<ButtonObj>();
-	private int playerIndex;
-	public string level = "normal";
-	public bool isAI;
+	public int PlayerIndex { get; set; }
+	public string Difficulty { get; set; }
+	public bool IsAI { get; set; }
 
-	public int GetPlayerIndex() {
-		return playerIndex;
-	}
 
 	public List<ButtonObj> GetButtonObjs() {
 		return Buttons;
@@ -20,40 +17,14 @@ public class Player : MonoBehaviour {
 	public int GetSize() {
 		return Buttons.Count;
 	}
-
-	public string GetLevel() {
-		return level;
-	}
-
+	
 	public void AddButton(ButtonObj button) {
-		if (this.Buttons.Contains(button)) {
-			Debug.Log("Occupied in " + button);
-			return;
-		}
+		if (this.Buttons.Contains(button)) return;
+		button.CurrState = PlayerIndex == 0 ? State.cat : State.dog;
 		this.Buttons.Add(button);
 	}
 
 	public void RemoveButton(ButtonObj button) {
 		this.Buttons.Remove(button);
-	}
-
-	public ButtonObj AIEasyRun(List<ButtonObj> buttons) {
-		return null;
-	}
-
-	public ButtonObj AINormalRun(List<ButtonObj> buttons) {
-		return null;
-	}
-
-	internal void SetPlayerIndex(int index) {
-		playerIndex = index;
-	}
-
-	internal void SetIsAI(bool isAI) {
-		this.isAI = isAI;
-	}
-
-	internal void SetLevel(string level) {
-		this.level = level;
 	}
 }
