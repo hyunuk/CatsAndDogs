@@ -83,7 +83,6 @@ public class GameController : MonoBehaviour
         players[0] = catPlayer;
         players[1] = dogPlayer;
 
-
         catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
         dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
         catTurnInfo.enabled = true;
@@ -123,8 +122,7 @@ public class GameController : MonoBehaviour
 
     void StartTurn() {
         Player currPlayer = players[currPlayerIndex];
-        if (!currPlayer.isAI) return;
-        RunAuto(currPlayer.GetLevel());
+        if (currPlayer.isAI) RunAuto(currPlayer.GetLevel());
     }
 
     void RunAuto(string level) {
@@ -132,42 +130,36 @@ public class GameController : MonoBehaviour
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
         switch(level) {
             case "easy":
-                StartCoroutine(RunEasyMode(buttons));
+                RunEasyMode(buttons);
                 break;
             case "normal":
-                StartCoroutine(RunNormalMode(buttons));
+                RunNormalMode(buttons);
                 break;
             case "hard":
-                StartCoroutine(RunHardMode(buttons));
+                RunHardMode(buttons);
                 break;
             default:
-                StartCoroutine(RunEasyMode(buttons));
+                RunEasyMode(buttons);
                 break;
         }
     }
 
-    private IEnumerator RunEasyMode(List<ButtonObj> buttons) {
-        int pos = Random.Range(0, buttons.Count);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(buttons[pos]);
-        List<ButtonObj> selectable = new List<ButtonObj>();
-        foreach (ButtonObj button in buttonList) {
-            if (IsBorder(button.currState)) selectable.Add(button);
-        }
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(selectable[Random.Range(0, selectable.Count)]);
+    private void RunEasyMode(List<ButtonObj> buttons) {
+        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindRandom);
+        StartCoroutine(RunCommon(currButton, nextButton));
     }
 
-    private IEnumerator RunNormalMode(List<ButtonObj> buttons) {
+    private void RunNormalMode(List<ButtonObj> buttons) {
         (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindGain);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(currButton);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(nextButton);
+        StartCoroutine(RunCommon(currButton, nextButton));
     }
 
-    private IEnumerator RunHardMode(List<ButtonObj> buttons) {
+    private void RunHardMode(List<ButtonObj> buttons) {
         (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindNet);
+        StartCoroutine(RunCommon(currButton, nextButton));
+    }
+
+    private IEnumerator RunCommon(ButtonObj currButton, ButtonObj nextButton) {
         yield return new WaitForSeconds(0.5f);
         ClickEvent(currButton);
         yield return new WaitForSeconds(0.5f);
@@ -175,7 +167,7 @@ public class GameController : MonoBehaviour
     }
 
     private (ButtonObj, ButtonObj) GetNextMove(List<ButtonObj> buttons, Find f) {
-        int max = -1;
+        int max = Int32.MinValue;
         ButtonObj currButton = null;
         ButtonObj nextButton = null;
         foreach (ButtonObj button in buttons) {
@@ -197,8 +189,12 @@ public class GameController : MonoBehaviour
         return (currButton, nextButton);
     }
 
+    private int FindRandom(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
+        return Random.Range(0, 5);
+    }
+
     private int FindNet(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
-        return FindGain(currButton, selectedButton, enemyState) - FindLoss(currButton, enemyState);
+        return FindGain(currButton, selectedButton, enemyState) + FindLoss(currButton, enemyState);
     }
 
     private int FindGain(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
