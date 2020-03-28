@@ -8,19 +8,23 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
+    private const int NEARBY = 2;
+    public const int LINE_COUNT = 7;
+
     public ButtonObj[] buttonList;
+    public int[][] board;
     public ButtonObj selectedButton;
-    public readonly int LINE_COUNT = 7;
-    public int turnCount = 0;
     public enum Status { notSelected, clicked };
-    private TitleController controller;
+
+    public int turnCount = 0;
     private Status status = Status.notSelected;
     private Player catPlayer;
     private Player dogPlayer;
     private Player[] players = new Player[2];
     private int currPlayerIndex;
-    public string gameMode = "PVE"; // temp. will add choosing game mode.
-    private int NEARBY = 2;
+    public string gameMode;
+
+    private TitleController controller;
     public GameObject endGamePanel;
     public GameObject winnerText;
     public Text catScore;
@@ -31,7 +35,7 @@ public class GameController : MonoBehaviour
     public Text dogTurnInfo;
 
     private delegate bool Function(int x, int y, int X, int Y);
-    private delegate int Find(ButtonObj btn1, ButtonObj btn2, State state);
+    private delegate int Find(ButtonObj button1, ButtonObj button2, State state);
 
     void Awake() {
         controller = GameObject.FindWithTag("TitleController").GetComponent<TitleController>();
@@ -40,11 +44,11 @@ public class GameController : MonoBehaviour
 
     void InitGame() {
         endGamePanel.SetActive(false);
-        InitGameMode();
         SetGameControllerReferenceOnButtons();
         InitPlayers();
-        InitButtons();
-        DrawBoard();
+        LoadStage();
+        InitInfo();
+        UpdateBoard();
         StartTurn();
     }
 
@@ -55,67 +59,73 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void InitGameMode() {
-        this.gameMode = controller.GetGameMode();
-    }
-
     private void InitPlayers() {
         catPlayer = gameObject.AddComponent<Player>();
         dogPlayer = gameObject.AddComponent<Player>();
-        catPlayer.SetLevel(controller.GetLevel());
-        dogPlayer.SetLevel(controller.GetLevel());
-        switch(gameMode) {
-            case "PVE":
-                catPlayer.SetIsAI(false);
-                dogPlayer.SetIsAI(true);
-                break;
-            case "EVE":
-                catPlayer.SetIsAI(true);
-                dogPlayer.SetIsAI(true);
-                break;
-            default:
-                catPlayer.SetIsAI(false);
-                dogPlayer.SetIsAI(false);
-                break;
-        }
-        catPlayer.SetPlayerIndex(0);
-        dogPlayer.SetPlayerIndex(1);
+        catPlayer.Difficulty = controller.GetLevel();
+        dogPlayer.Difficulty = controller.GetLevel();
+        SetGameMode();
+        catPlayer.PlayerIndex = 0;
+        dogPlayer.PlayerIndex = 1;
         players[0] = catPlayer;
         players[1] = dogPlayer;
-
-
-        catName.text = catPlayer.isAI ? "Computer (" + catPlayer.GetLevel() + ")" : "Player";
-        dogName.text = dogPlayer.isAI ? "Computer (" + dogPlayer.GetLevel() + ")" : "Player";
-        catTurnInfo.enabled = true;
-        dogTurnInfo.enabled = false;
 
         currPlayerIndex = 0;
     }
 
-    private void InitButtons() {
+    private void SetGameMode() {
+        this.gameMode = controller.GetGameMode();
+        switch (gameMode) {
+            case "PVE":
+                catPlayer.IsAI = false;
+                dogPlayer.IsAI = true;
+                break;
+            case "EVE":
+                catPlayer.IsAI = true;
+                dogPlayer.IsAI = true;
+                break;
+            default:
+                catPlayer.IsAI = false;
+                dogPlayer.IsAI = false;
+                break;
+        }
+    }
+
+    private void LoadStage() {
         // TODO: get stage info and make buttons with using obstacles.
-        foreach (ButtonObj button in buttonList) {
-            button.SetState(State.empty);
-		}
-        buttonList[0].SetState(State.cat);
-        players[0].AddButton(buttonList[0]);
-        buttonList[1].SetState(State.cat);
-        players[0].AddButton(buttonList[1]);
-        
-        buttonList[5].SetState(State.dog);
-        players[1].AddButton(buttonList[5]);
-        buttonList[6].SetState(State.dog);
-        players[1].AddButton(buttonList[6]);
-        
-        buttonList[42].SetState(State.dog);
-        players[1].AddButton(buttonList[42]);
-        buttonList[43].SetState(State.dog);
-        players[1].AddButton(buttonList[43]);
-        
-        buttonList[47].SetState(State.cat);
-        players[0].AddButton(buttonList[47]);
-        buttonList[48].SetState(State.cat);
-        players[0].AddButton(buttonList[48]);
+        board = new int[LINE_COUNT][];
+        Dictionary<Pair, State> stage = Stages.Stage_1;
+        for (int y = 0; y < board.Length; y++) {
+            board[y] = new int[LINE_COUNT];
+            for (int x = 0; x < board[y].Length; x++) {
+                Pair curr = new Pair(x, y);
+                if (stage.ContainsKey(curr)) {
+                    board[y][x] = (int) stage[curr];
+                } else {
+                    board[y][x] = 0;
+                }
+                
+            }
+        }
+    }
+
+    private void UpdateBoard() {
+        for (int y = 0; y < board.Length; y++) {
+            for (int x = 0; x < board.Length; x++) {
+                int pos = GetPosition(x, y);
+                State currState = (State) board[y][x];
+                buttonList[pos].CurrState = currState;
+                if (currState == State.cat) players[0].AddButton(buttonList[pos]);
+                if (currState == State.dog) players[1].AddButton(buttonList[pos]);
+            }
+        }
+    }
+
+    private void InitInfo() {
+        catName.text = catPlayer.IsAI ? "Computer (" + catPlayer.Difficulty + ")" : "Player";
+        dogName.text = dogPlayer.IsAI ? "Computer (" + dogPlayer.Difficulty + ")" : "Player";
+        catTurnInfo.enabled = true;
+        dogTurnInfo.enabled = false;
 
         catScore.text = catPlayer.GetButtonObjs().Count.ToString();
         dogScore.text = dogPlayer.GetButtonObjs().Count.ToString();
@@ -123,65 +133,44 @@ public class GameController : MonoBehaviour
 
     void StartTurn() {
         Player currPlayer = players[currPlayerIndex];
-        if (!currPlayer.isAI) return;
-        RunAuto(currPlayer.GetLevel());
+        if (currPlayer.IsAI) RunAuto(currPlayer.Difficulty);
     }
+
+    Find GetFind(string level) {
+        switch(level) {
+            case "easy":
+                return FindRandom;
+             case "normal":
+                return FindGain;
+             case "hard":
+                return FindMinimax;
+             default:
+                throw new ArgumentException(String.Format("{0} is not a valid difficulty level!", level));
+         }
+     }
 
     void RunAuto(string level) {
         Player currPlayer = players[currPlayerIndex];
         List<ButtonObj> buttons = currPlayer.GetButtonObjs();
-        switch(level) {
-            case "easy":
-                StartCoroutine(RunEasyMode(buttons));
-                break;
-            case "normal":
-                StartCoroutine(RunNormalMode(buttons));
-                break;
-            case "hard":
-                StartCoroutine(RunHardMode(buttons));
-                break;
-            default:
-                StartCoroutine(RunEasyMode(buttons));
-                break;
-        }
+        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, GetFind(level));
+        StartCoroutine(RunCommon(currButton, nextButton));
     }
 
-    private IEnumerator RunEasyMode(List<ButtonObj> buttons) {
-        int pos = Random.Range(0, buttons.Count);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(buttons[pos]);
-        List<ButtonObj> selectable = new List<ButtonObj>();
-        foreach (ButtonObj button in buttonList) {
-            if (IsBorder(button.currState)) selectable.Add(button);
-        }
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(selectable[Random.Range(0, selectable.Count)]);
-    }
-
-    private IEnumerator RunNormalMode(List<ButtonObj> buttons) {
-        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindGain);
+    private IEnumerator RunCommon(ButtonObj currButton, ButtonObj nextButton) {
         yield return new WaitForSeconds(0.5f);
         ClickEvent(currButton);
         yield return new WaitForSeconds(0.5f);
         ClickEvent(nextButton);
     }
 
-    private IEnumerator RunHardMode(List<ButtonObj> buttons) {
-        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindNet);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(currButton);
-        yield return new WaitForSeconds(0.5f);
-        ClickEvent(nextButton);
-    }
-
-    private (ButtonObj, ButtonObj) GetNextMove(List<ButtonObj> buttons, Find f) {
-        int max = -1;
+    private (ButtonObj, ButtonObj) GetNextMove(List<ButtonObj> buttons, Find FindNet) {
+        int max = Int32.MinValue;
         ButtonObj currButton = null;
         ButtonObj nextButton = null;
         foreach (ButtonObj button in buttons) {
             List<ButtonObj> neighbors = FindAvailableButtons(button);
             foreach (ButtonObj neighbor in neighbors) {
-                int net = f(button, neighbor, GetEnemy(currPlayerIndex));
+                int net = FindNet(button, neighbor, GetEnemyState(currPlayerIndex));
                 if (net > max) {
                     currButton = button;
                     nextButton = neighbor;
@@ -197,20 +186,24 @@ public class GameController : MonoBehaviour
         return (currButton, nextButton);
     }
 
-    private int FindNet(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
-        return FindGain(currButton, selectedButton, enemyState) - FindLoss(currButton, enemyState);
+    private int FindRandom(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
+        return Random.Range(0, 5);
+    }
+
+    private int FindMinimax(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
+        return FindGain(currButton, selectedButton, enemyState) + FindLoss(currButton, enemyState);
     }
 
     private int FindGain(ButtonObj currButton, ButtonObj selectedButton, State enemyState) {
         int gain = 0;
         if (GetDistance(currButton, selectedButton) == 1) gain++;
-        foreach (ButtonObj neighbor in FindNeighbors(selectedButton, 1)) if (neighbor.currState.Equals(enemyState)) gain++;
+        foreach (ButtonObj neighbor in FindNeighbors(selectedButton, 1)) if (neighbor.CurrState == enemyState) gain++;
         return gain;
     }
 
     private int FindLoss(ButtonObj currButton, State enemyState) {
         int loss = 0;
-        foreach (ButtonObj neighbor in FindNeighbors(currButton, 2)) if (neighbor.currState.Equals(enemyState)) loss--;
+        foreach (ButtonObj neighbor in FindNeighbors(currButton, 2)) if (neighbor.CurrState == enemyState) loss--;
         return loss;
     }
 
@@ -221,13 +214,8 @@ public class GameController : MonoBehaviour
                 if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
                     this.status = Status.clicked;
-                    UpdateBorders(selectedButton);
-                    
-                    if (clickedButton.currState.Equals(State.cat)) {
-                        clickedButton.catClickedSound.Play();
-                    } else if (clickedButton.currState.Equals(State.dog)) {
-                        //clickedButton.dogClickedSound.Play();
-                    }
+                    UpdateBorders();
+                    PlayAudio(clickedButton);
                 }
                 break;
 
@@ -235,57 +223,57 @@ public class GameController : MonoBehaviour
                 if (IsCurrPlayerButton(clickedButton, currPlayer)) {
                     this.selectedButton = clickedButton;
                     
-                    if (clickedButton.currState.Equals(State.cat)) {
-                        clickedButton.catClickedSound.Play();
-                    } else if (clickedButton.currState.Equals(State.dog)) {
-                        //clickedButton.dogClickedSound.Play();
-                    }
-                    ClearAvailableButtons();
-                    UpdateBorders(selectedButton);
-                } else {
-                    if (clickedButton.currState.Equals(State.nearBorder) || clickedButton.currState.Equals(State.farBorder)) {
-                        this.status = Status.notSelected;
-                        Attack(clickedButton);
-                    }
-                    else ClearAvailableButtons();
-                }
+                    PlayAudio(clickedButton);
+                    ClearBorders();
+                    UpdateBorders();
+                } else if (IsBorder(clickedButton.CurrState)) {
+                    this.status = Status.notSelected;
+                    Attack(clickedButton);
+                } else ClearBorders();
                 break;
+            default:
+                throw new ArgumentException(String.Format("{0} is not a valid game status!", status));
 
         }
-        DrawBoard();
+        // UpdateBoard();
+    }
+
+    private void PlayAudio(ButtonObj button) {
+        switch(button.CurrState) {
+            case State.cat:
+                button.catClickedSound.Play();
+                break;
+            case State.dog:
+                // button.dogClickedSound.Play();
+                break;
+        }
     }
 
     private bool IsCurrPlayerButton(ButtonObj clickedButton, Player currPlayer) {
         return currPlayer.GetButtonObjs().Contains(clickedButton);
     }
 
-    private void UpdateBorders(ButtonObj selected) {
-        List<ButtonObj> retList = FindAvailableButtons(selected);
+    private void UpdateBorders() {
+        List<ButtonObj> retList = FindAvailableButtons(selectedButton);
         foreach (ButtonObj b in retList) {
-            if (GetDistance(b, selected) == 1) b.currState = State.nearBorder;
-            if (GetDistance(b, selected) == 2) b.currState = State.farBorder;
-        }
-    }
-
-    private void DrawBoard() {
-        foreach (ButtonObj currButton in buttonList) {
-            currButton.UpdateImg();
+            int distance = GetDistance(b, selectedButton);
+            if (distance == 1) b.CurrState = State.nearBorder;
+            if (distance == 2) b.CurrState = State.farBorder;
         }
     }
 
     void GameOver() {
         string winner = (players[0].GetSize() > players[1].GetSize()) ? "Cat" : "Dog";
         foreach (ButtonObj button in buttonList) {
-            if (winner.Equals("Cat") && button.GetState().Equals(State.empty)) {
-                button.SetState(State.cat);
-            } else if (winner.Equals("Dog") && button.GetState().Equals(State.empty)) {
-                button.SetState(State.dog);
+            if (winner.Equals("Cat") && button.CurrState == State.empty) {
+                button.CurrState = State.cat;
+            } else if (winner.Equals("Dog") && button.CurrState == State.empty) {
+                button.CurrState = State.dog;
             }
             
         }
         GetWinner(winner);
         endGamePanel.SetActive(true);
-
     }
 
     private void GetWinner(string winner) {
@@ -301,12 +289,12 @@ public class GameController : MonoBehaviour
         SceneManager.UnloadSceneAsync("MainScene");
     }
 
-    private List<ButtonObj> FindAvailableButtons(ButtonObj btn) {
-        return VisitNeighbors(btn, NEARBY, IsAvailable);
+    private List<ButtonObj> FindAvailableButtons(ButtonObj button) {
+        return VisitNeighbors(button, NEARBY, IsAvailable);
     }
 
-    private List<ButtonObj> FindNeighbors(ButtonObj btn, int gap) {
-        return VisitNeighbors(btn, gap, IsNeighbor);
+    private List<ButtonObj> FindNeighbors(ButtonObj button, int gap) {
+        return VisitNeighbors(button, gap, IsNeighbor);
     }
 
     private bool IsNeighbor(int x, int y, int X, int Y) {
@@ -314,12 +302,12 @@ public class GameController : MonoBehaviour
     }
 
     private bool IsAvailable(int x, int y, int X, int Y) {
-        return IsNeighbor(x, y, X, Y) && buttonList[GetPosition(x, y)].GetState().Equals(State.empty);
+        return IsNeighbor(x, y, X, Y) && buttonList[GetPosition(x, y)].CurrState == State.empty;
     }
 
-    private List<ButtonObj> VisitNeighbors(ButtonObj btn, int gap, Function f) {
+    private List<ButtonObj> VisitNeighbors(ButtonObj button, int gap, Function f) {
         List<ButtonObj> retList = new List<ButtonObj>();
-        Pair coord = btn.coord;
+        Pair coord = button.coord;
         for (int x = coord.X - gap; x <= coord.X + gap; x++) {
             for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
                 if (f(x, y, coord.X, coord.Y)) {
@@ -347,8 +335,8 @@ public class GameController : MonoBehaviour
         return GetPosition(coord.X, coord.Y);
     }
 
-    private int GetPosition(ButtonObj btn) {
-        return GetPosition(btn.GetCoord());
+    private int GetPosition(ButtonObj button) {
+        return GetPosition(button.GetCoord());
     }
 
     private int GetPosition(int x, int y) {
@@ -366,26 +354,21 @@ public class GameController : MonoBehaviour
     }
 
     private void Attack(ButtonObj clickedButton) {
+        ClearBorders();
+
         int dist = GetDistance(selectedButton, clickedButton);
-        if (dist > 2) {
-            ClearAvailableButtons();
-            return;
-        } else if (dist == 2) {
-            RemoveCurrentButton();
+        if (dist <= 2) {
+            if (dist == 2) RemoveCurrentButton();
+            MoveButton(clickedButton);
+            ConsumeButton(clickedButton);
+            EndTurn();
         }
-        MoveButton(clickedButton);
-        ConsumeButton(clickedButton);
-        EndTurn();
     }
 
     private void ConsumeButton(ButtonObj clickedButton) {
-        ClearAvailableButtons();
-
         List<ButtonObj> neighbors = FindNeighbors(clickedButton, 1);
-
         foreach (ButtonObj neighbor in neighbors) {
             if (IsEnemy(neighbor)) {
-                neighbor.SetState(GetEnemy(neighbor));
                 players[currPlayerIndex].AddButton(neighbor);
                 players[(currPlayerIndex == 0) ? 1 : 0].RemoveButton(neighbor);        
             }
@@ -393,67 +376,56 @@ public class GameController : MonoBehaviour
     }
 
     private void MoveButton(ButtonObj clickedButton) {
-        ClearAvailableButtons();
-        int pos = GetPosition(clickedButton);
-        State updatedState = currPlayerIndex == 0 ? State.cat : State.dog;
-        buttonList[pos].SetState(updatedState);
         players[currPlayerIndex].AddButton(clickedButton);
     }
 
     private void RemoveCurrentButton() {
-        selectedButton.SetState(State.empty);
+        selectedButton.CurrState = State.empty;
         players[currPlayerIndex].RemoveButton(selectedButton);
     }
 
-    private void ClearAvailableButtons() {
+    private void ClearBorders() {
         foreach (ButtonObj button in buttonList) {
-            if (IsBorder(button.currState)) button.currState = State.empty;
+            if (IsBorder(button.CurrState)) button.CurrState = State.empty;
         }
     }
 
     private bool IsBorder(State state) {
-        return state.Equals(State.nearBorder) || state.Equals(State.farBorder);
+        return state == State.nearBorder || state == State.farBorder;
     }
 
     private bool IsEnemy(ButtonObj button) {
-        return IsEnemy(button.currState);
+        return IsEnemy(button.CurrState);
     }
 
     private bool IsEnemy(State state) {
-        return (currPlayerIndex == 0 && state.Equals(State.dog)) || (currPlayerIndex == 1 && state.Equals(State.cat));
+        return (currPlayerIndex == 0 && state == State.dog) || (currPlayerIndex == 1 && state == State.cat);
     }
 
-    private State GetEnemy(int playerIndex) {
+    private State GetEnemyState(int playerIndex) {
         return playerIndex == 0 ? State.dog : State.cat;
     }
 
-    private State GetEnemy(ButtonObj button) {
-        return GetEnemy(button.currState);
+    private State GetEnemyState(ButtonObj button) {
+        return GetEnemyState(button.CurrState);
     }
 
-    private State GetEnemy(State state) {
-        return state.Equals(State.cat) ? State.dog : State.cat;
+    private State GetEnemyState(State state) {
+        return state == State.cat ? State.dog : State.cat;
     }
 
     private void EndTurn() {
         currPlayerIndex = (currPlayerIndex == 0) ? 1 : 0;
         catScore.text = catPlayer.GetButtonObjs().Count.ToString();
         dogScore.text = dogPlayer.GetButtonObjs().Count.ToString();
-        if (!CanContinue()) {
-            GameOver();
-            return;
-        }
 
-        ClearAvailableButtons();
-        turnCount++;
-        StartTurn();
-        if (currPlayerIndex == 0) {
-            catTurnInfo.enabled = true;
-            dogTurnInfo.enabled = false;
-        } else {
-            catTurnInfo.enabled = false;
-            dogTurnInfo.enabled = true;
-        }
+        if (CanContinue()) {
+            ClearBorders();
+            turnCount++;
+            catTurnInfo.enabled = currPlayerIndex == 0;
+            dogTurnInfo.enabled = currPlayerIndex == 1;
+            StartTurn();
+        } else GameOver();
     }
 
     private bool CanContinue() {
@@ -464,7 +436,7 @@ public class GameController : MonoBehaviour
 
     private bool IsNoMoreMove() {
         List<ButtonObj> buttons = players[currPlayerIndex].GetButtonObjs();
-        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindNet);
+        (ButtonObj currButton, ButtonObj nextButton) = GetNextMove(buttons, FindMinimax);
         if (!nextButton) return false;
         return true;
     }

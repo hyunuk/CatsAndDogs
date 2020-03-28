@@ -5,15 +5,28 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [Serializable]
-public class Pair
-{
+public class Pair {
     public int X, Y;
 
-    public Pair(int X, int Y)
-    {
+    public Pair(int X, int Y) {
         this.X = X;
         this.Y = Y;
     }
+
+    public override bool Equals(object obj) {
+        //Check for null and compare run-time types.
+        if ((obj == null) || !this.GetType().Equals(obj.GetType())) return false;
+        Pair p = (Pair)obj;
+        return (X == p.X) && (Y == p.Y);
+    }
+
+    public override int GetHashCode() {
+        var hashCode = 1861411795;
+        hashCode = hashCode * -1521134295 + X.GetHashCode();
+        hashCode = hashCode * -1521134295 + Y.GetHashCode();
+        return hashCode;
+    }
+
 }
 
 [Serializable]
@@ -32,70 +45,33 @@ public class ButtonObj : MonoBehaviour {
     public GameController gameController;
     public AudioSource catClickedSound;
     public AudioSource dogClickedSound;
-    public State currState = State.empty;
+
+    private State currState;
+    public State CurrState { 
+        get => currState;
+        set {
+            currState = value;
+            for (int i = 0; i < imgList.Length; i++) {
+                if (i == (int)currState) imgList[i].enabled = true;
+                else imgList[i].enabled = false;
+            }
+        }
+    }
 
     private void Awake() {
         catClickedSound = GetComponent<AudioSource>();
         dogClickedSound = GetComponent<AudioSource>();
     }
 
-    public void UpdateImg() {
-        switch (currState) {
-            case State.empty:
-                SetButtonImage(State.empty);
-                break;
-
-            case State.cat:
-                SetButtonImage(State.cat);
-                break;
-
-            case State.dog:
-                SetButtonImage(State.dog);
-                break;
-
-            case State.nearBorder:
-                SetButtonImage(State.nearBorder);
-                break;
-
-            case State.farBorder:
-                SetButtonImage(State.farBorder);
-                break;
-
-            case State.obstacle:
-                SetButtonImage(State.obstacle);
-                break;
-        }
-    }
-
     public void SetSpace() {
         gameController.ClickEvent(this);
-    }
-
-    public State GetState() {
-        return currState;
     }
 
     public Pair GetCoord() {
         return this.coord;
     }
 
-    public void SetState(State state) {
-        currState = state;
-        UpdateImg();
-    }
-
-    public void SetButtonImage(State state) {
-        for (int i = 0; i < imgList.Length; i++) {
-            if (i == (int)state) imgList[i].enabled = true;
-            else imgList[i].enabled = false;
-        }
-    }
-
     public void SetGameControllerReference(GameController controller) {
         this.gameController = controller;
-    }
-
-    public bool Equals(Pair p) {
-        return (coord.X == p.X) && (coord.Y == p.Y);
     }
 }
