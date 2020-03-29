@@ -10,7 +10,7 @@ public class Player : MonoBehaviour {
 	public bool IsAI { get; set; }
 
 
-	public List<ButtonObj> GetButtonObjs() {
+	public List<ButtonObj> GetButtons() {
 		return Buttons;
 	}
 

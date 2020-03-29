@@ -41,10 +41,12 @@ public class ButtonObj : MonoBehaviour {
     public Image farBorderImg;
     public Image obstacleImg;
     public Image[] imgList;
-    public Pair coord;
     public GameController gameController;
     public AudioSource catClickedSound;
     public AudioSource dogClickedSound;
+    [SerializeField]
+    private Pair coord;
+    public Pair Coord { get => coord; set { coord = value; } }
 
     private State currState;
     public State CurrState { 
@@ -65,10 +67,6 @@ public class ButtonObj : MonoBehaviour {
 
     public void SetSpace() {
         gameController.ClickEvent(this);
-    }
-
-    public Pair GetCoord() {
-        return this.coord;
     }
 
     public void SetGameControllerReference(GameController controller) {
