@@ -8,8 +8,9 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour {
-    private const int DEPTH = 3;
+    private const int DEPTH = 4;
     private const int NEARBY = 2;
+    private const float SPEED = 0.2f;
     public static int LINE_COUNT = 7;
 
     public ButtonObj[] buttonList;
@@ -152,9 +153,9 @@ public class GameController : MonoBehaviour {
     }
 
     private IEnumerator RunCommon(ButtonObj currentButton, ButtonObj nextButton) {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(SPEED);
         ClickEvent(currentButton);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(SPEED);
         ClickEvent(nextButton);
     }
 
@@ -303,6 +304,15 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    private void ConsumeButton(ButtonObj clickedButton, State[][] snapshot) {
+        List<ButtonObj> neighbors = FindNeighbors(clickedButton, 1);
+        foreach (ButtonObj neighbor in neighbors) {
+            if (neighbor.CurrState == Util.GetEnemyState(clickedButton.CurrState)) {
+                snapshot[neighbor.Coord.Y][neighbor.Coord.X] = clickedButton.CurrState;
+            }
+        }
+    }
+
     private List<ButtonObj> GetButtons(State state) {
         return buttonList.Where(button => button.CurrState == state).ToList();
     }
@@ -351,23 +361,27 @@ public class GameController : MonoBehaviour {
     }
 
     // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
-    public int minimax(int depth, bool isMax, ButtonObj source, ButtonObj dest, State enemyState, int h, State[][] origBoard) {
+    public int Minimax(int depth, bool isMax, ButtonObj source, ButtonObj dest, State enemyState, int h, State[][] origBoard) {
         // TODO: update board to reflect choice made
         State[][] snapshot = DuplicateBoard(origBoard);
+        
+        int score = isMax? Int32.MinValue : Int32.MaxValue;
+        if (depth == h) return FindScore(source, dest, enemyState, snapshot);
+        
+        List<ButtonObj> availableButtons = FindAvailableButtons(source);
+        if (availableButtons.Count == 0) return score;
 
-        int score;
-        if (depth == h) {
-            score = FindScore(source, dest, enemyState, snapshot);
-        } else {
-            List<ButtonObj> availableButtons = FindAvailableButtons(source);
-            List<int> scoreArr = new List<int>();
-            foreach (ButtonObj button in availableButtons) {
-                scoreArr.Add(minimax(depth+1, !isMax, dest, button, enemyState == State.cat ? State.dog : State.cat, h, snapshot));
+        List<int> scoreArr = new List<int>();
+        foreach (ButtonObj button in availableButtons) {
+            State currPlayerState = enemyState == State.cat ? State.dog : State.cat;
+            if (Util.GetDistance(button, source) == 2) {
+                snapshot[source.Coord.Y][source.Coord.X] = State.empty;
             }
-            score = isMax ? scoreArr.Max() : scoreArr.Min();
+            snapshot[button.Coord.Y][button.Coord.X] = currPlayerState;
+            ConsumeButton(button, snapshot);
+            scoreArr.Add(Minimax(depth+1, !isMax, dest, button, enemyState == State.cat ? State.dog : State.cat, h, snapshot));
         }
-        // Debug.Log(score);
-        return score;
+        return isMax ? scoreArr.Max() : scoreArr.Min();
     } 
 
     private State[][] DuplicateBoard(State[][] orig) {
@@ -384,7 +398,7 @@ public class GameController : MonoBehaviour {
     public int Log2(int n) => (n==1)? 0 : 1 + Log2(n/2);
 
     private int FindMinimax(ButtonObj source, ButtonObj dest, State enemyState) {
-        return minimax(0, true, source, dest, enemyState, DEPTH, board);
+        return Minimax(0, true, source, dest, enemyState, DEPTH, board);
     }
 
     private int FindScore(ButtonObj source, ButtonObj dest, State enemyState) {

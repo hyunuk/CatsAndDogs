@@ -54,4 +54,8 @@ public class Util {
     public static State GetEnemyState(int playerIndex) {
         return playerIndex == 0 ? State.dog : State.cat;
     }
+
+    public static State GetEnemyState(State state) {
+        return state == State.cat ? State.dog : State.cat;
+    }
 }
