@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour {
-    private const int DEPTH = 1;
+    private const int DEPTH = 3;
     private const int NEARBY = 2;
     public static int LINE_COUNT = 7;
 
@@ -43,7 +43,7 @@ public class GameController : MonoBehaviour {
         InitGame();
     }
 
-    void InitGame() {
+    public void InitGame() {
         endGamePanel.SetActive(false);
         SetGameControllerReferenceOnButtons();
         InitPlayers();
@@ -160,102 +160,56 @@ public class GameController : MonoBehaviour {
 
     private (ButtonObj, ButtonObj) GetNextMove(Find FindNet) {
         int max = Int32.MinValue;
-        ButtonObj currentButton = null;
-        ButtonObj nextButton = null;
-        List<ButtonObj> buttons = GetButtons(Util.GetPlayerState(currPlayerIndex));
-        foreach (ButtonObj button in buttons) {
-            List<ButtonObj> neighbors = FindAvailableButtons(button);
+        ButtonObj source = null;
+        ButtonObj dest = null;
+        List<ButtonObj> myButtons = GetButtons(Util.GetPlayerState(currPlayerIndex));
+        foreach (ButtonObj myButton in myButtons) {
+            List<ButtonObj> neighbors = FindAvailableButtons(myButton);
             foreach (ButtonObj neighbor in neighbors) {
-                int net = FindNet(button, neighbor, Util.GetEnemyState(currPlayerIndex));
+                int net = FindNet(myButton, neighbor, Util.GetEnemyState(currPlayerIndex));
                 if (net > max) {
-                    currentButton = button;
-                    nextButton = neighbor;
+                    source = myButton;
+                    dest = neighbor;
                     max = net;
                 } else if (net == max) {
                     bool rand = Random.Range(0, 1) > 0.5;
-                    currentButton = rand ? currentButton : button;
-                    nextButton = rand ? nextButton : neighbor;
+                    source = rand ? source : myButton;
+                    dest = rand ? dest : neighbor;
                     max = rand ? max : net;
                 }
             }
         }
-        return (currentButton, nextButton);
-    }
-
-    // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
-    public int minimax(int depth, bool isMax, ButtonObj currentButton, ButtonObj selectedButton, State enemyState, int h) {
-        // TODO: update board to reflect choice made
-        int score;
-        if (depth == h) {
-            score = FindScore(currentButton, selectedButton, enemyState);
-        } else {
-            List<ButtonObj> availableButtons = FindAvailableButtons(currentButton);
-            List<int> arr = new List<int>();
-            foreach (ButtonObj button in availableButtons) {
-                arr.Add(minimax(depth+1, !isMax, selectedButton, button, enemyState == State.cat ? State.dog : State.cat, h));
-            }
-            score = isMax ? arr.Max() : arr.Min();
-        }
-        Debug.Log(score);
-        return score;
-    } 
-
-    public int Log2(int n) => (n==1)? 0 : 1 + Log2(n/2);
-
-    private int FindRandom(ButtonObj currentButton, ButtonObj selectedButton, State enemyState) {
-        return Random.Range(0, 5);
-    }
-
-    private int FindMinimax(ButtonObj currentButton, ButtonObj selectedButton, State enemyState) {
-        return minimax(0, true, currentButton, selectedButton, enemyState, DEPTH);
-    }
-
-    private int FindScore(ButtonObj currentButton, ButtonObj selectedButton, State enemyState) {
-        return FindGain(currentButton, selectedButton, enemyState) + FindLoss(currentButton, enemyState);
-    }
-
-    private int FindGain(ButtonObj currentButton, ButtonObj selectedButton, State enemyState) {
-        int gain = 0;
-        if (Util.GetDistance(currentButton, selectedButton) == 1) gain++;
-        foreach (ButtonObj neighbor in FindNeighbors(selectedButton, 1)) if (neighbor.CurrState == enemyState) gain++;
-        return gain;
-    }
-
-    private int FindLoss(ButtonObj currentButton, State enemyState) {
-        int loss = 0;
-        foreach (ButtonObj neighbor in FindNeighbors(currentButton, 2)) if (neighbor.CurrState == enemyState) loss--;
-        return loss;
+        return (source, dest);
     }
 
     public void ClickEvent(ButtonObj clickedButton) {
-        bool isCurrPlayerButton = IsCurrPlayerButton(clickedButton);
+        bool isCurrPlayerButton = Util.IsCurrPlayerButton(clickedButton, currPlayerIndex);
+
         if (isCurrPlayerButton) {
             selectedButton = clickedButton;
             status = Status.clicked;
             ClearBorders();
+            DrawBoard();
             UpdateBorders();
             PlayAudio(clickedButton);
         }
-
         if (status == Status.clicked && !isCurrPlayerButton) {
             ClearBorders();
             Attack(selectedButton, clickedButton, currPlayerIndex);
             status = Status.notSelected;
         }
+
         DrawBoard();
     }
     
     private void Attack(ButtonObj selectedButton, ButtonObj clickedButton, int currPlayerIndex) {
         int dist = Util.GetDistance(selectedButton, clickedButton);
-        Pair selectedCoord = selectedButton.Coord;
-        State opposite = Util.GetEnemyState(currPlayerIndex);
+        State selectedButtonState = board[selectedButton.Coord.Y][selectedButton.Coord.X];
 
-        if (board[selectedCoord.Y][selectedCoord.X] == State.empty || board[selectedCoord.Y][selectedCoord.X] == opposite) {
-            return;
-        }
+        if (selectedButtonState == State.empty || Util.IsEnemy(selectedButtonState, currPlayerIndex)) return;
         if (dist <= 2) {
-            if (dist == 2) RemoveCurrentButton(selectedButton);
-            MoveButton(clickedButton);
+            if (dist == 2) board[selectedButton.Coord.Y][selectedButton.Coord.X] = State.empty;
+            board[clickedButton.Coord.Y][clickedButton.Coord.X] = Util.GetPlayerState(currPlayerIndex);
             ConsumeButton(clickedButton);
             DrawBoard();
             EndTurn();
@@ -273,15 +227,10 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    private bool IsCurrPlayerButton(ButtonObj clickedButton) {
-        return clickedButton.CurrState == Util.GetPlayerState(currPlayerIndex);
-    }
-
     private void UpdateBorders() {
         List<ButtonObj> retList = FindAvailableButtons(selectedButton);
         foreach (ButtonObj b in retList) {
             int distance = Util.GetDistance(b, selectedButton);
-            Debug.Log(distance);
             if (distance == 1) {
                 b.CurrState = State.nearBorder;
                 board[b.Coord.Y][b.Coord.X] = State.nearBorder;
@@ -292,36 +241,43 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    void GameOver() {
-        int catCount = GetButtons(State.cat).Count;
-        int dogCount = GetButtons(State.dog).Count;
-        State winnerState = (catCount > dogCount) ? State.cat : State.dog;
-        foreach (ButtonObj button in buttonList) {
-            board[button.Coord.Y][button.Coord.X] = winnerState;
-        }
-        GetWinner(winnerState);
-        endGamePanel.SetActive(true);
-    }
-
-    private void GetWinner(State winnerState) {
-        winnerText.GetComponent<Text>().text = (winnerState == State.cat ? "Cat" : "Dog") + " Player Won!";
-    }
-
-    public void ClickRestartButton() {
-        InitGame();
-    }
-
-    public void ClickBackToTitleButton() {
-        SceneManager.LoadScene("TitleScene", LoadSceneMode.Single);
-        SceneManager.UnloadSceneAsync("MainScene");
-    }
-
     private List<ButtonObj> FindAvailableButtons(ButtonObj button) {
-        return VisitNeighbors(button, NEARBY, IsAvailable);
+        List<ButtonObj> availableButtons = new List<ButtonObj>();
+        Pair coord = button.Coord;
+        for (int x = coord.X - NEARBY; x <= coord.X + NEARBY; x++) {
+            for (int y = coord.Y - NEARBY; y <= coord.Y + NEARBY; y++) {
+                if (IsAvailable(x, y, coord.X, coord.Y)) {
+                    availableButtons.Add(buttonList[Util.GetPosition(x, y)]);
+                }
+            }
+        }
+        return availableButtons;
     }
 
     private List<ButtonObj> FindNeighbors(ButtonObj button, int gap) {
-        return VisitNeighbors(button, gap, IsNeighbor);
+        List<ButtonObj> neighbors = new List<ButtonObj>();
+        Pair coord = button.Coord;
+        for (int x = coord.X - gap; x <= coord.X + gap; x++) {
+            for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
+                if (IsNeighbor(x, y, coord.X, coord.Y)) {
+                    neighbors.Add(buttonList[Util.GetPosition(x, y)]);
+                }
+            }
+        }
+        return neighbors;
+    }
+
+    private List<State> FindNeighbors(ButtonObj button, int gap, State[][] snapshot) {
+        List<State> neighbors = new List<State>();
+        Pair coord = button.Coord;
+        for (int x = coord.X - gap; x <= coord.X + gap; x++) {
+            for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
+                if (IsNeighbor(x, y, coord.X, coord.Y)) {
+                    neighbors.Add(snapshot[y][x]);
+                }
+            }
+        }
+        return neighbors;
     }
 
     private bool IsNeighbor(int x, int y, int X, int Y) {
@@ -332,19 +288,7 @@ public class GameController : MonoBehaviour {
         return IsNeighbor(x, y, X, Y) && buttonList[Util.GetPosition(x, y)].CurrState == State.empty;
     }
 
-    private List<ButtonObj> VisitNeighbors(ButtonObj button, int gap, Function f) {
-        List<ButtonObj> retList = new List<ButtonObj>();
-        Pair coord = button.Coord;
-        for (int x = coord.X - gap; x <= coord.X + gap; x++) {
-            for (int y = coord.Y - gap; y <= coord.Y + gap; y++) {
-                if (f(x, y, coord.X, coord.Y)) {
-                    retList.Add(buttonList[Util.GetPosition(x, y)]);
-                }
-            }
-        }
-        return retList;
-    }
-
+    // TODO: deprecated?
     private void SetStatus(Pair coord, bool status) {
         int pos = Util.GetPosition(coord);
         buttonList[pos].parentButton.interactable = status;
@@ -359,12 +303,8 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    private void MoveButton(ButtonObj clickedButton) {
-        board[clickedButton.Coord.Y][clickedButton.Coord.X] = Util.GetPlayerState(currPlayerIndex);
-    }
-
-    private void RemoveCurrentButton(ButtonObj selectedButton) {
-        board[selectedButton.Coord.Y][selectedButton.Coord.X] = State.empty;
+    private List<ButtonObj> GetButtons(State state) {
+        return buttonList.Where(button => button.CurrState == state).ToList();
     }
 
     private void ClearBorders() {
@@ -394,11 +334,84 @@ public class GameController : MonoBehaviour {
         return !(nextButton is null);
     }
 
-    private List<ButtonObj> GetButtons(State state) {
-        List<ButtonObj> buttons = new List<ButtonObj>();
+    void GameOver() {
+        int catCount = GetButtons(State.cat).Count;
+        int dogCount = GetButtons(State.dog).Count;
+        State winnerState = (catCount > dogCount) ? State.cat : State.dog;
         foreach (ButtonObj button in buttonList) {
-            if (state == button.CurrState) buttons.Add(button);
+            board[button.Coord.Y][button.Coord.X] = winnerState;
         }
-        return buttons;
+        winnerText.GetComponent<Text>().text = (winnerState == State.cat ? "Cat" : "Dog") + " Player Won!";
+        endGamePanel.SetActive(true);
+    }
+
+    public void ClickBackToTitleButton() {
+        SceneManager.LoadScene("TitleScene", LoadSceneMode.Single);
+        SceneManager.UnloadSceneAsync("MainScene");
+    }
+
+    // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
+    public int minimax(int depth, bool isMax, ButtonObj source, ButtonObj dest, State enemyState, int h, State[][] origBoard) {
+        // TODO: update board to reflect choice made
+        State[][] snapshot = DuplicateBoard(origBoard);
+
+        int score;
+        if (depth == h) {
+            score = FindScore(source, dest, enemyState, snapshot);
+        } else {
+            List<ButtonObj> availableButtons = FindAvailableButtons(source);
+            List<int> scoreArr = new List<int>();
+            foreach (ButtonObj button in availableButtons) {
+                scoreArr.Add(minimax(depth+1, !isMax, dest, button, enemyState == State.cat ? State.dog : State.cat, h, snapshot));
+            }
+            score = isMax ? scoreArr.Max() : scoreArr.Min();
+        }
+        // Debug.Log(score);
+        return score;
+    } 
+
+    private State[][] DuplicateBoard(State[][] orig) {
+        State[][] snapshot = new State[orig.Length][];
+        for (int y = 0; y < orig.Length; y++) {
+            snapshot[y] = new State[orig.Length];
+            for (int x = 0; x < board[y].Length; x++) {
+                snapshot[y][x] = orig[y][x];
+            }
+        }
+        return snapshot;
+    }
+
+    public int Log2(int n) => (n==1)? 0 : 1 + Log2(n/2);
+
+    private int FindMinimax(ButtonObj source, ButtonObj dest, State enemyState) {
+        return minimax(0, true, source, dest, enemyState, DEPTH, board);
+    }
+
+    private int FindScore(ButtonObj source, ButtonObj dest, State enemyState) {
+        return FindGain(source, dest, enemyState) + FindLoss(source, enemyState);
+    }
+
+    private int FindScore(ButtonObj source, ButtonObj dest, State enemyState, State[][] snapshot) {
+        return FindGain(source, dest, enemyState, snapshot) + FindLoss(source, enemyState, snapshot);
+    }
+
+    private int FindGain(ButtonObj source, ButtonObj dest, State enemyState) {
+        return FindNeighbors(dest, 1).Count(neighbor => neighbor.CurrState == enemyState) + (Util.GetDistance(source, dest) == 1 ? 1 : 0);
+    }
+
+    private int FindGain(ButtonObj source, ButtonObj dest, State enemyState, State[][] snapshot) {
+        return FindNeighbors(dest, 1, snapshot).Count(state => state == enemyState) + (Util.GetDistance(source, dest) == 1 ? 1 : 0);
+    }
+
+    private int FindLoss(ButtonObj source, State enemyState) {
+        return -FindNeighbors(source, 2).Count(neighbor => neighbor.CurrState == enemyState);
+    }
+
+    private int FindLoss(ButtonObj source, State enemyState, State[][] snapshot) {
+        return -FindNeighbors(source, 2, snapshot).Count(state => state == enemyState);
+    }
+
+    private int FindRandom(ButtonObj source, ButtonObj dest, State enemyState) {
+        return Random.Range(0, 5);
     }
 }

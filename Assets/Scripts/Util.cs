@@ -35,8 +35,16 @@ public class Util {
         return state == State.nearBorder || state == State.farBorder;
     }
 
+    public static bool IsCurrPlayerButton(ButtonObj button, int currPlayerIndex) {
+        return button.CurrState == GetPlayerState(currPlayerIndex);
+    }
+
     public static bool IsEnemy(ButtonObj button, int currPlayerIndex) {
-        return (currPlayerIndex == 0 && button.CurrState == State.dog) || (currPlayerIndex == 1 && button.CurrState == State.cat);
+        return IsEnemy(button.CurrState, currPlayerIndex);
+    }
+
+    public static bool IsEnemy(State state, int currPlayerIndex) {
+        return (currPlayerIndex == 0 && state == State.dog) || (currPlayerIndex == 1 && state == State.cat);
     }
 
     public static State GetPlayerState(int playerIndex) {

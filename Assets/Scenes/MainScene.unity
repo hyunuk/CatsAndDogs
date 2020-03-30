@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -6084,8 +6085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efd7db37467bb450c9feb08957ff16b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level: normal
-  isAI: 0
 --- !u!1 &1402730253
 GameObject:
   m_ObjectHideFlags: 0
@@ -9344,6 +9343,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1946757542}
+    - target: {fileID: 3968496106211906230, guid: 16f9ee2415d0c43d48cfbdb0bd36d67e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: InitGame
+      objectReference: {fileID: 0}
     - target: {fileID: 3968496107000566378, guid: 16f9ee2415d0c43d48cfbdb0bd36d67e,
         type: 3}
       propertyPath: m_Name
